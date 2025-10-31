@@ -63,72 +63,6 @@ class AboutSection extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 30), // Spacing between cards
-
-          // Skills & Competencies Card
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0), // Increased padding
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Skills & Competencies',
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  )
-                      .animate()
-                      .fadeIn()
-                      .slideX(delay: const Duration(milliseconds: 200)),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      'Programming Languages: Dart, JavaScript',
-                      'Frameworks: Flutter (UI/UX Implementation, State Management, Animations), REST APIs, Firebase (Authentication, Firestore, Cloud Messaging, Storage), ImgBB',
-                      'Mobile Development: Cross-Platform App Development (iOS, Android), Native Android Understanding',
-                      'Architecture Patterns: MVVM (Model-View-ViewModel)',
-                      'Version Control: Git, GitHub',
-                      'UI/UX Design: Figma, Adobe XD, Canva',
-                      'IDE/Tools: Android Studio, Visual Studio Code',
-                      'Soft Skills: Strong Communication & Presentation, Time Management & Organization, Team Collaboration & Leadership, Problem Solving & Critical Thinking',
-                    ]
-                        .map((skill) => Chip(
-                              label: Text(skill,
-                                  style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color:
-                                          Colors.blueGrey[800])), // Styled text
-                              backgroundColor:
-                                  Colors.blueGrey[50], // Light background
-                              elevation: 1,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8), // Comfortable padding
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: BorderSide(
-                                      color: Colors.blueGrey.shade100,
-                                      width: 0.5)), // Rounded corners
-                            ))
-                        .toList(),
-                  )
-                      .animate()
-                      .fadeIn()
-                      .slideX(delay: const Duration(milliseconds: 250)),
-                ],
-              ),
-            ),
-          ),
-
           const SizedBox(height: 40), // Spacing before button
 
           // View Full CV Button
@@ -137,7 +71,7 @@ class AboutSection extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () async {
                 const url =
-                    'https://drive.google.com/file/d/1k9LJQMKQPG6FSL_iq1sVsfcfw_jBTqBE'; // Your CV Google Drive link
+                    'https://drive.google.com/file/d/1KMJIqHs36MBWA8uRYF3sPMoLOy1mivUo/view?usp=sharing'; // Your CV Google Drive link
                 final uri = Uri.parse(url);
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);

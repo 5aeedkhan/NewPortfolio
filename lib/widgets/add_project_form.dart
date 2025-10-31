@@ -21,8 +21,10 @@ class _AddProjectFormState extends State<AddProjectForm> {
   
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _projectUrlController = TextEditingController();
+  final _githubUrlController = TextEditingController();
+  final _youtubeUrlController = TextEditingController();
   final _technologiesController = TextEditingController();
+  final _playStoreUrlController = TextEditingController();
 
   Uint8List? _selectedImageBytes;
   bool _isLoading = false;
@@ -66,13 +68,15 @@ class _AddProjectFormState extends State<AddProjectForm> {
           description: _descriptionController.text,
           imageUrl: imageUrl,
           technologies: _technologiesController.text.split(',').map((e) => e.trim()).toList(),
-          projectUrl: _projectUrlController.text,
+          githubUrl: _githubUrlController.text,
+          youtubeUrl: _youtubeUrlController.text,
         );
 
         _formKey.currentState!.reset();
         _titleController.clear();
         _descriptionController.clear();
-        _projectUrlController.clear();
+        _githubUrlController.clear();
+        _youtubeUrlController.clear();
         _technologiesController.clear();
         setState(() => _selectedImageBytes = null);
 
@@ -281,11 +285,11 @@ class _AddProjectFormState extends State<AddProjectForm> {
             ),
             const SizedBox(height: 12),
             TextFormField(
-              controller: _projectUrlController,
+              controller: _playStoreUrlController,
               decoration: InputDecoration(
-                labelText: 'Project URL',
-                hintText: 'https://your-project.com',
-                prefixIcon: const Icon(Icons.link, size: 20),
+                labelText: 'Playstore URL',
+                hintText: 'https://play.google.com/store/apps/details?id=...',
+                prefixIcon: const Icon(Icons.code, size: 20),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -295,7 +299,55 @@ class _AddProjectFormState extends State<AddProjectForm> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a project URL';
+                  return 'Please enter a Playstore URL';
+                }
+                if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                  return 'URL must start with http:// or https://';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _githubUrlController,
+              decoration: InputDecoration(
+                labelText: 'GitHub URL',
+                hintText: 'https://github.com/username/repo',
+                prefixIcon: const Icon(Icons.code, size: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                filled: true,
+                fillColor: Colors.grey.shade50,
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a GitHub URL';
+                }
+                if (!value.startsWith('http://') && !value.startsWith('https://')) {
+                  return 'URL must start with http:// or https://';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _youtubeUrlController,
+              decoration: InputDecoration(
+                labelText: 'YouTube URL',
+                hintText: 'https://youtube.com/watch?v=...',
+                prefixIcon: const Icon(Icons.play_circle_outline, size: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                filled: true,
+                fillColor: Colors.grey.shade50,
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a YouTube URL';
                 }
                 if (!value.startsWith('http://') && !value.startsWith('https://')) {
                   return 'URL must start with http:// or https://';

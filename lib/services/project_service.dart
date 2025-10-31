@@ -10,7 +10,8 @@ class ProjectService {
     required String description,
     required String imageUrl,
     required List<String> technologies,
-    required String projectUrl,
+    required String githubUrl,
+    required String youtubeUrl,
   }) async {
     try {
       await _firestore.collection(_collection).add({
@@ -18,7 +19,8 @@ class ProjectService {
         'description': description,
         'imageUrl': imageUrl,
         'technologies': technologies,
-        'projectUrl': projectUrl,
+        'githubUrl': githubUrl,
+        'youtubeUrl': youtubeUrl,
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -52,7 +54,8 @@ class ProjectService {
     String? description,
     String? imageUrl,
     List<String>? technologies,
-    String? projectUrl,
+    String? githubUrl,
+    String? youtubeUrl,
   }) async {
     try {
       final Map<String, dynamic> updates = {};
@@ -60,7 +63,8 @@ class ProjectService {
       if (description != null) updates['description'] = description;
       if (imageUrl != null) updates['imageUrl'] = imageUrl;
       if (technologies != null) updates['technologies'] = technologies;
-      if (projectUrl != null) updates['projectUrl'] = projectUrl;
+      if (githubUrl != null) updates['githubUrl'] = githubUrl;
+      if (youtubeUrl != null) updates['youtubeUrl'] = youtubeUrl;
       updates['updatedAt'] = FieldValue.serverTimestamp();
 
       await _firestore.collection(_collection).doc(projectId).update(updates);
