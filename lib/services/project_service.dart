@@ -1,4 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:portfolio/services/image_service.dart';
 
 class ProjectService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -46,8 +51,7 @@ class ProjectService {
       rethrow;
     }
   }
-
-  // Update a project
+// Update a project
   Future<void> updateProject({
     required String projectId,
     String? title,
@@ -55,7 +59,7 @@ class ProjectService {
     String? imageUrl,
     List<String>? technologies,
     String? githubUrl,
-    String? youtubeUrl,
+    String? youtubeUrl, required String playStoreUrl,
   }) async {
     try {
       final Map<String, dynamic> updates = {};
@@ -65,6 +69,8 @@ class ProjectService {
       if (technologies != null) updates['technologies'] = technologies;
       if (githubUrl != null) updates['githubUrl'] = githubUrl;
       if (youtubeUrl != null) updates['youtubeUrl'] = youtubeUrl;
+      if (playStoreUrl.isNotEmpty) updates['playStoreUrl'] = playStoreUrl;
+
       updates['updatedAt'] = FieldValue.serverTimestamp();
 
       await _firestore.collection(_collection).doc(projectId).update(updates);

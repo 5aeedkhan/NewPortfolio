@@ -65,14 +65,16 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 30),
 
                     // Name with optimized text rendering
-                    Text(
-                      'Muhammad Saeed Khan',
-                      style: GoogleFonts.poppins(
-                        fontSize: MediaQuery.of(context).size.width < 600 ? 32 : 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ).animate().fadeIn().slideY(begin: 0.3),
+                    Center(
+                      child: Text(
+                        'Muhammad Saeed Khan',
+                        style: GoogleFonts.poppins(
+                          fontSize: MediaQuery.of(context).size.width < 600 ? 32 : 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ).animate().fadeIn().slideY(begin: 0.3),
+                    ),
 
                     const SizedBox(height: 10),
 

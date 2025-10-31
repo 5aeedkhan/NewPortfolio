@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:portfolio/services/image_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../screens/login_screen.dart';
 import 'add_project_form.dart';
@@ -140,8 +144,9 @@ class ProjectsSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          FutureBuilder<QuerySnapshot>(
-            future: FirebaseFirestore.instance.collection('projects').get(),
+          StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream:
+                FirebaseFirestore.instance.collection('projects').snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
@@ -219,7 +224,7 @@ class ProjectsSection extends StatelessWidget {
                   crossAxisCount: isMobile ? 1 : 3,
                   crossAxisSpacing: isMobile ? 0 : 16,
                   mainAxisSpacing: isMobile ? 16 : 16,
-                  childAspectRatio: isMobile ? 0.75 : 0.85,
+                  childAspectRatio: isMobile ? 0.60 : 0.85,
                 ),
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
@@ -236,6 +241,7 @@ class ProjectsSection extends StatelessWidget {
                     youtubeUrl: data['youtubeUrl'] ?? '',
                     demoUrl: data['demoUrl'] ?? '',
                     projectId: doc.id,
+                    isAdmin: true,
                   )
                       .animate()
                       .fadeIn(
@@ -266,6 +272,7 @@ class ProjectCard extends StatefulWidget {
   final String playStoreUrl;
   final String demoUrl;
   final String projectId;
+  final bool isAdmin;
 
   const ProjectCard({
     super.key,
@@ -276,12 +283,117 @@ class ProjectCard extends StatefulWidget {
     required this.githubUrl,
     required this.youtubeUrl,
     required this.demoUrl,
-    required this.projectId, 
+    required this.projectId,
     required this.playStoreUrl,
+    required this.isAdmin,
   });
 
   @override
   State<ProjectCard> createState() => _ProjectCardState();
+//   void _showEditDialog(BuildContext context, Map<String, dynamic> projectData, String projectId) {
+//   final titleController = TextEditingController(text: projectData['title']);
+//   final descController = TextEditingController(text: projectData['description']);
+//   final githubController = TextEditingController(text: projectData['githubUrl']);
+//   final youtubeController = TextEditingController(text: projectData['youtubeUrl']);
+//   final playStoreController = TextEditingController(text: projectData['playStoreUrl']);
+//   final techController = TextEditingController(
+//     text: (projectData['technologies'] as List<dynamic>).join(', '),
+//   );
+
+//   Uint8List? updatedImageBytes;
+//   String? newImageUrl;
+
+//   showDialog(
+//     context: context,
+//     builder: (context) {
+//       return AlertDialog(
+//         title: const Text('Edit Project'),
+//         content: SingleChildScrollView(
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               TextField(
+//                 controller: titleController,
+//                 decoration: const InputDecoration(labelText: 'Title'),
+//               ),
+//               TextField(
+//                 controller: descController,
+//                 decoration: const InputDecoration(labelText: 'Description'),
+//               ),
+//               TextField(
+//                 controller: techController,
+//                 decoration: const InputDecoration(labelText: 'Technologies (comma separated)'),
+//               ),
+//               TextField(
+//                 controller: githubController,
+//                 decoration: const InputDecoration(labelText: 'GitHub URL'),
+//               ),
+//               TextField(
+//                 controller: youtubeController,
+//                 decoration: const InputDecoration(labelText: 'YouTube URL'),
+//               ),
+//               TextField(
+//                 controller: playStoreController,
+//                 decoration: const InputDecoration(labelText: 'PlayStore URL'),
+//               ),
+//               const SizedBox(height: 8),
+//               ElevatedButton.icon(
+//                 onPressed: () async {
+//                   final ImagePicker picker = ImagePicker();
+//                   final picked = await picker.pickImage(source: ImageSource.gallery);
+//                   if (picked != null) {
+//                     updatedImageBytes = await picked.readAsBytes();
+//                   }
+//                 },
+//                 icon: const Icon(Icons.image),
+//                 label: const Text('Change Image'),
+//               ),
+//             ],
+//           ),
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('Cancel'),
+//           ),
+//           ElevatedButton(
+//             onPressed: () async {
+//               Navigator.pop(context);
+
+//               if (updatedImageBytes != null) {
+//                 newImageUrl = await ImageService().uploadImageBytes(updatedImageBytes!);
+//               }
+
+//               await FirebaseFirestore.instance
+//                   .collection('projects')
+//                   .doc(projectId)
+//                   .update({
+//                 'title': titleController.text,
+//                 'description': descController.text,
+//                 'technologies': techController.text
+//                     .split(',')
+//                     .map((e) => e.trim())
+//                     .toList(),
+//                 'githubUrl': githubController.text,
+//                 'youtubeUrl': youtubeController.text,
+//                 'playStoreUrl': playStoreController.text,
+//                 'imageUrl': newImageUrl ?? projectData['imageUrl'],
+//               });
+
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 const SnackBar(
+//                   content: Text('Project updated successfully!'),
+//                   backgroundColor: Colors.green,
+//                 ),
+//               );
+//             },
+//             child: const Text('Save Changes'),
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
 }
 
 class _ProjectCardState extends State<ProjectCard> {
@@ -294,323 +406,317 @@ class _ProjectCardState extends State<ProjectCard> {
     final isMobile = screenWidth < 600;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => isHovered = true),
-      onExit: (_) => setState(() => isHovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        transform: Matrix4.identity()
-          ..setEntry(3, 2, 0.001)
-          ..rotateX(isHovered ? 0.05 : 0)
-          ..rotateY(isHovered ? 0.05 : 0),
-        child: Card(
-          elevation: isHovered ? 12 : 8,
-          shadowColor: Colors.black26,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Container(
-            height: isMobile ? 500 : 320,
-            decoration: BoxDecoration(
-              color: Colors.white,
+        onEnter: (_) => setState(() => isHovered = true),
+        onExit: (_) => setState(() => isHovered = false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.001)
+            ..rotateX(isHovered ? 0.05 : 0)
+            ..rotateY(isHovered ? 0.05 : 0),
+          child: Card(
+            elevation: isHovered ? 12 : 8,
+            shadowColor: Colors.black26,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isHovered
-                    ? Theme.of(context).primaryColor.withOpacity(0.5)
-                    : Colors.transparent,
-                width: 2,
-              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image Section with Delete Button
-                Stack(
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: isMobile ? 200 : 180,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                      ),
-                      child: !_isValidImageUrl(sanitizedUrl)
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.error_outline,
-                                    color: Colors.red, size: 24),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Invalid image URL',
-                                  style: TextStyle(
-                                      color: Colors.grey[600], fontSize: 12),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            )
-                          : Hero(
-                              tag: 'project-${widget.projectId}',
-                              child: CachedNetworkImage(
-                                imageUrl: sanitizedUrl,
-                                fit: BoxFit.fitWidth,
-                                placeholder: (context, url) => Container(
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    ),
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  color: Colors.grey[300],
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.error_outline,
-                                          color: Colors.red, size: 24),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Failed to load image',
-                                        style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                    ),
-                    // Delete Button (only visible when logged in)
-                    StreamBuilder<User?>(
-                      stream: FirebaseAuth.instance.authStateChanges(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return Positioned(
-                            top: 8,
-                            right: 8,
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity: isHovered ? 1.0 : 0.0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.white),
-                                  onPressed: () => _deleteProject(context),
-                                  tooltip: 'Delete Project',
-                                  padding: const EdgeInsets.all(8),
-                                  constraints: const BoxConstraints(),
-                                  iconSize: 20,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ],
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+                minHeight: 240,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isHovered
+                      ? Theme.of(context).primaryColor.withOpacity(0.5)
+                      : Colors.transparent,
+                  width: 2,
                 ),
-                // Content Section
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final cardMaxWidth = constraints.maxWidth;
+                  return SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Title
-                        Text(
-                          widget.title,
-                          style: GoogleFonts.poppins(
-                            fontSize: isMobile ? 18 : 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                            letterSpacing: 0.3,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        // Scrollable Description
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Text(
-                              widget.description,
-                              style: GoogleFonts.poppins(
-                                fontSize: isMobile ? 14 : 13,
-                                color: Colors.grey[800],
-                                height: 1.5,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Technologies
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: widget.technologies.map((tech) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: isHovered
-                                    ? Theme.of(context)
-                                        .primaryColor
-                                        .withOpacity(0.1)
-                                    : Colors.blueGrey[50],
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  color: isHovered
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.blueGrey.shade100,
-                                ),
-                              ),
-                              child: Text(
-                                tech,
-                                style: GoogleFonts.poppins(
-                                  fontSize: isMobile ? 12 : 11,
-                                  color: isHovered
-                                      ? Theme.of(context).primaryColor
-                                      : Colors.blueGrey[700],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 16),
-                        // Action Buttons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        // Image Section
+                        Stack(
                           children: [
-                            if (widget.playStoreUrl.isNotEmpty)
-                              Expanded(
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      final uri = Uri.parse(widget.playStoreUrl);
-                                      if (await canLaunchUrl(uri)) {
-                                        await launchUrl(uri);
-                                      }
-                                    },
-                                    icon: const Icon(Icons.play_arrow, size: 16),
-                                    label: const Text('Live App'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isHovered
-                                          ? Colors.blue
-                                          : Colors.blueAccent,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 10),
-                                      textStyle: TextStyle(
-                                          fontSize: isMobile ? 13 : 12,
-                                          fontWeight: FontWeight.w500),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      elevation: isHovered ? 4 : 2,
-                                    ),
-                                  ),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: cardMaxWidth > 400 ? 200 : 160,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20),
                                 ),
                               ),
-                            // if (widget.githubUrl.isNotEmpty &&
-                            //     widget.youtubeUrl.isNotEmpty)
-                            const SizedBox(width: 8),
-                            if (widget.githubUrl.isNotEmpty)
-                              Expanded(
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      final uri = Uri.parse(widget.githubUrl);
-                                      if (await canLaunchUrl(uri)) {
-                                        await launchUrl(uri);
-                                      }
-                                    },
-                                    icon: const Icon(Icons.code, size: 16),
-                                    label: const Text('Source Code'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isHovered
-                                          ? Colors.black
-                                          : Colors.black87,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 10),
-                                      textStyle: TextStyle(
-                                          fontSize: isMobile ? 13 : 12,
-                                          fontWeight: FontWeight.w500),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                              child: !_isValidImageUrl(sanitizedUrl)
+                                  ? Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.error_outline, color: Colors.red, size: 24),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Invalid image URL',
+                                          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    )
+                                  : Hero(
+                                      tag: 'project-${widget.projectId}',
+                                      child: CachedNetworkImage(
+                                        imageUrl: sanitizedUrl,
+                                        fit: BoxFit.fitWidth,
+                                        placeholder: (context, url) => Container(
+                                          color: Colors.grey[200],
+                                          child: const Center(
+                                            child: SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: CircularProgressIndicator(strokeWidth: 2),
+                                            ),
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) => Container(
+                                          color: Colors.grey[300],
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Icons.error_outline, color: Colors.red, size: 24),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                'Failed to load image',
+                                                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                      elevation: isHovered ? 4 : 2,
                                     ),
-                                  ),
-                                ),
-                              ),
-                            if (widget.githubUrl.isNotEmpty &&
-                                widget.youtubeUrl.isNotEmpty)
-                              const SizedBox(width: 8),
-                            if (widget.youtubeUrl.isNotEmpty)
-                              Expanded(
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      final uri = Uri.parse(widget.youtubeUrl);
-                                      if (await canLaunchUrl(uri)) {
-                                        await launchUrl(uri);
-                                      }
-                                    },
-                                    icon: const Icon(Icons.play_circle_outline,
-                                        size: 16),
-                                    label: const Text('Video'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isHovered
-                                          ? Colors.red.shade700
-                                          : Colors.red,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 10),
-                                      textStyle: TextStyle(
-                                          fontSize: isMobile ? 13 : 12,
-                                          fontWeight: FontWeight.w500),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                            ),
+                            // Delete Button remains (unchanged)
+                            StreamBuilder<User?>(
+                              stream: FirebaseAuth.instance.authStateChanges(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: AnimatedOpacity(
+                                      duration: const Duration(milliseconds: 200),
+                                      opacity: isHovered ? 1.0 : 0.0,
+                                      child: AnimatedOpacity(
+                                        duration: const Duration(milliseconds: 200),
+                                        opacity: isHovered ? 1.0 : 0.0,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.6),
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(Icons.edit,
+                                                    color: Colors.white),
+                                                onPressed: () =>
+                                                    _showEditDialog(context),
+                                                tooltip: 'Edit Project',
+                                                padding: const EdgeInsets.all(8),
+                                                constraints: const BoxConstraints(),
+                                                iconSize: 20,
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete,
+                                                    color: Colors.white),
+                                                onPressed: () =>
+                                                    _deleteProject(context),
+                                                tooltip: 'Delete Project',
+                                                padding: const EdgeInsets.all(8),
+                                                constraints: const BoxConstraints(),
+                                                iconSize: 20,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
-                                      elevation: isHovered ? 4 : 2,
                                     ),
-                                  ),
-                                ),
-                              ),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
                           ],
+                        ),
+                        // Content Section
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Title
+                              Text(
+                                widget.title,
+                                style: GoogleFonts.poppins(
+                                  fontSize: cardMaxWidth > 400 ? 18 : 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                  letterSpacing: 0.3,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 8),
+                              // Description
+                              Text(
+                                widget.description,
+                                style: GoogleFonts.poppins(
+                                  fontSize: cardMaxWidth > 400 ? 16 : 14,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              // Technologies
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: widget.technologies.map((tech) {
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: isHovered
+                                          ? Theme.of(context).primaryColor.withOpacity(0.1)
+                                          : Colors.blueGrey[50],
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        color: isHovered
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.blueGrey.shade100,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      tech,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: cardMaxWidth > 400 ? 12 : 11,
+                                        color: isHovered
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.blueGrey[700],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: 16),
+                              // Action Buttons
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  if (widget.playStoreUrl.isNotEmpty)
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 200),
+                                      child: ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final uri = Uri.parse(widget.playStoreUrl);
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          }
+                                        },
+                                        icon: const Icon(Icons.play_arrow, size: 16),
+                                        label: const Text('Live App'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: isHovered
+                                              ? Colors.blue
+                                              : Colors.blueAccent,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                          textStyle: TextStyle(
+                                            fontSize: cardMaxWidth > 400 ? 13 : 12,
+                                            fontWeight: FontWeight.w500),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          elevation: isHovered ? 4 : 2,
+                                        ),
+                                      ),
+                                    ),
+                                  if (widget.githubUrl.isNotEmpty)
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 200),
+                                      child: ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final uri = Uri.parse(widget.githubUrl);
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          }
+                                        },
+                                        icon: const Icon(Icons.code, size: 16),
+                                        label: const Text('Source Code'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: isHovered ? Colors.black : Colors.black87,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                          textStyle: TextStyle(
+                                              fontSize: cardMaxWidth > 400 ? 13 : 12,
+                                              fontWeight: FontWeight.w500),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          elevation: isHovered ? 4 : 2,
+                                        ),
+                                      ),
+                                    ),
+                                  if (widget.githubUrl.isNotEmpty && widget.youtubeUrl.isNotEmpty)
+                                    const SizedBox(width: 8),
+                                  if (widget.youtubeUrl.isNotEmpty)
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 200),
+                                      child: ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final uri = Uri.parse(widget.youtubeUrl);
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri);
+                                          }
+                                        },
+                                        icon: const Icon(Icons.play_circle_outline, size: 16),
+                                        label: const Text('Video'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: isHovered ? Colors.red.shade700 : Colors.red,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                          textStyle: TextStyle(
+                                              fontSize: cardMaxWidth > 400 ? 13 : 12,
+                                              fontWeight: FontWeight.w500),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          elevation: isHovered ? 4 : 2,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   String _sanitizeImageUrl(String url) {
@@ -631,6 +737,116 @@ class _ProjectCardState extends State<ProjectCard> {
       print('Invalid URL format: $url');
       return false;
     }
+  }
+
+  void _showEditDialog(BuildContext context) {
+    final titleController = TextEditingController(text: widget.title);
+    final descController = TextEditingController(text: widget.description);
+    final githubController = TextEditingController(text: widget.githubUrl);
+    final youtubeController = TextEditingController(text: widget.youtubeUrl);
+    final playStoreController =
+        TextEditingController(text: widget.playStoreUrl);
+    final techController =
+        TextEditingController(text: widget.technologies.join(', '));
+
+    Uint8List? updatedImageBytes;
+    String? newImageUrl;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Project'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(labelText: 'Title'),
+                ),
+                TextField(
+                  controller: descController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                ),
+                TextField(
+                  controller: techController,
+                  decoration: const InputDecoration(
+                      labelText: 'Technologies (comma separated)'),
+                ),
+                TextField(
+                  controller: githubController,
+                  decoration: const InputDecoration(labelText: 'GitHub URL'),
+                ),
+                TextField(
+                  controller: youtubeController,
+                  decoration: const InputDecoration(labelText: 'YouTube URL'),
+                ),
+                TextField(
+                  controller: playStoreController,
+                  decoration: const InputDecoration(labelText: 'PlayStore URL'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final ImagePicker picker = ImagePicker();
+                    final picked =
+                        await picker.pickImage(source: ImageSource.gallery);
+                    if (picked != null) {
+                      updatedImageBytes = await picked.readAsBytes();
+                    }
+                  },
+                  icon: const Icon(Icons.image),
+                  label: const Text('Change Image'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+
+                if (updatedImageBytes != null) {
+                  newImageUrl =
+                      await ImageService().uploadImageBytes(updatedImageBytes!);
+                }
+
+                await FirebaseFirestore.instance
+                    .collection('projects')
+                    .doc(widget.projectId)
+                    .update({
+                  'title': titleController.text,
+                  'description': descController.text,
+                  'technologies': techController.text
+                      .split(',')
+                      .map((e) => e.trim())
+                      .toList(),
+                  'githubUrl': githubController.text,
+                  'youtubeUrl': youtubeController.text,
+                  'playStoreUrl': playStoreController.text,
+                  'imageUrl': newImageUrl ?? widget.imageUrl,
+                });
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Project updated successfully!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Save Changes'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _deleteProject(BuildContext context) async {
