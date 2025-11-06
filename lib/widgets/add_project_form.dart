@@ -297,15 +297,15 @@ class _AddProjectFormState extends State<AddProjectForm> {
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a Playstore URL';
-                }
-                if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                  return 'URL must start with http:// or https://';
-                }
-                return null;
-              },
+validator: (value) {
+  if (value != null && value.isNotEmpty) {
+    if (!value.startsWith('http://') && !value.startsWith('https://')) {
+      return 'URL must start with http:// or https://';
+    }
+  }
+  return null;
+},
+
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -321,15 +321,15 @@ class _AddProjectFormState extends State<AddProjectForm> {
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a GitHub URL';
-                }
-                if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                  return 'URL must start with http:// or https://';
-                }
-                return null;
-              },
+validator: (value) {
+  if (value != null && value.isNotEmpty) {
+    if (!value.startsWith('http://') && !value.startsWith('https://')) {
+      return 'URL must start with http:// or https://';
+    }
+  }
+  return null;
+},
+
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -345,15 +345,15 @@ class _AddProjectFormState extends State<AddProjectForm> {
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a YouTube URL';
-                }
-                if (!value.startsWith('http://') && !value.startsWith('https://')) {
-                  return 'URL must start with http:// or https://';
-                }
-                return null;
-              },
+validator: (value) {
+  if (value != null && value.isNotEmpty) {
+    if (!value.startsWith('http://') && !value.startsWith('https://')) {
+      return 'URL must start with http:// or https://';
+    }
+  }
+  return null;
+},
+
             ),
             const SizedBox(height: 16),
             ElevatedButton(

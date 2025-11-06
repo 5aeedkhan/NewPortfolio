@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:portfolio/services/image_service.dart';
+import 'package:portfolio/widgets/edit_project_form.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../screens/login_screen.dart';
 import 'add_project_form.dart';
@@ -48,6 +49,12 @@ class ProjectsSection extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: isMobile ? 22 : 26,
                   fontWeight: FontWeight.bold,
+                ),
+              ).animate().fadeIn().slideX(),
+              Text(   'Scroll each card for more info',
+                style: GoogleFonts.poppins(
+                  fontSize: isMobile ? 10 : 12,
+                  color: Colors.grey[900]
                 ),
               ).animate().fadeIn().slideX(),
               StreamBuilder<User?>(
@@ -237,7 +244,7 @@ class ProjectsSection extends StatelessWidget {
                     imageUrl: imageUrl,
                     technologies: List<String>.from(data['technologies'] ?? []),
                     githubUrl: data['githubUrl'] ?? '',
-                    playStoreUrl: data['githubUrl'] ?? '',
+                    playStoreUrl: data['playStoreUrl'] ?? '',
                     youtubeUrl: data['youtubeUrl'] ?? '',
                     demoUrl: data['demoUrl'] ?? '',
                     projectId: doc.id,
@@ -448,14 +455,11 @@ class _ProjectCardState extends State<ProjectCard> {
                           children: [
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              height: cardMaxWidth > 400 ? 200 : 160,
+                              height: cardMaxWidth > 400 ? 220 : 180,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20),
-                                ),
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: !_isValidImageUrl(sanitizedUrl)
                                   ? Column(
@@ -471,38 +475,46 @@ class _ProjectCardState extends State<ProjectCard> {
                                       ],
                                     )
                                   : Hero(
-                                      tag: 'project-${widget.projectId}',
-                                      child: CachedNetworkImage(
-                                        imageUrl: sanitizedUrl,
-                                        fit: BoxFit.fitWidth,
-                                        placeholder: (context, url) => Container(
-                                          color: Colors.grey[200],
-                                          child: const Center(
-                                            child: SizedBox(
-                                              height: 24,
-                                              width: 24,
-                                              child: CircularProgressIndicator(strokeWidth: 2),
-                                            ),
-                                          ),
-                                        ),
-                                        errorWidget: (context, url, error) => Container(
-                                          color: Colors.grey[300],
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(Icons.error_outline, color: Colors.red, size: 24),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                'Failed to load image',
-                                                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                            ),
+  tag: 'project-${widget.projectId}',
+  child: Container(
+    width: double.infinity,
+    height: cardMaxWidth > 400 ? 220 : 180,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      color: Colors.grey[100], // Background behind image
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: CachedNetworkImage(
+      imageUrl: sanitizedUrl,
+      fit: BoxFit.contain, // ✅ shows full image (no cropping)
+      alignment: Alignment.center, // ✅ always centered
+      placeholder: (context, url) => const Center(
+        child: SizedBox(
+          height: 24,
+          width: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: Colors.grey[300],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              'Failed to load image',
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+),
+
+),
                             // Delete Button remains (unchanged)
                             StreamBuilder<User?>(
                               stream: FirebaseAuth.instance.authStateChanges(),
@@ -739,115 +751,43 @@ class _ProjectCardState extends State<ProjectCard> {
     }
   }
 
-  void _showEditDialog(BuildContext context) {
-    final titleController = TextEditingController(text: widget.title);
-    final descController = TextEditingController(text: widget.description);
-    final githubController = TextEditingController(text: widget.githubUrl);
-    final youtubeController = TextEditingController(text: widget.youtubeUrl);
-    final playStoreController =
-        TextEditingController(text: widget.playStoreUrl);
-    final techController =
-        TextEditingController(text: widget.technologies.join(', '));
-
-    Uint8List? updatedImageBytes;
-    String? newImageUrl;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Project'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
-                ),
-                TextField(
-                  controller: descController,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                ),
-                TextField(
-                  controller: techController,
-                  decoration: const InputDecoration(
-                      labelText: 'Technologies (comma separated)'),
-                ),
-                TextField(
-                  controller: githubController,
-                  decoration: const InputDecoration(labelText: 'GitHub URL'),
-                ),
-                TextField(
-                  controller: youtubeController,
-                  decoration: const InputDecoration(labelText: 'YouTube URL'),
-                ),
-                TextField(
-                  controller: playStoreController,
-                  decoration: const InputDecoration(labelText: 'PlayStore URL'),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    final ImagePicker picker = ImagePicker();
-                    final picked =
-                        await picker.pickImage(source: ImageSource.gallery);
-                    if (picked != null) {
-                      updatedImageBytes = await picked.readAsBytes();
-                    }
-                  },
-                  icon: const Icon(Icons.image),
-                  label: const Text('Change Image'),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-
-                if (updatedImageBytes != null) {
-                  newImageUrl =
-                      await ImageService().uploadImageBytes(updatedImageBytes!);
-                }
-
-                await FirebaseFirestore.instance
-                    .collection('projects')
-                    .doc(widget.projectId)
-                    .update({
-                  'title': titleController.text,
-                  'description': descController.text,
-                  'technologies': techController.text
-                      .split(',')
-                      .map((e) => e.trim())
-                      .toList(),
-                  'githubUrl': githubController.text,
-                  'youtubeUrl': youtubeController.text,
-                  'playStoreUrl': playStoreController.text,
-                  'imageUrl': newImageUrl ?? widget.imageUrl,
-                });
-
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Project updated successfully!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Save Changes'),
+void _showEditDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: EditProjectForm(
+            projectId: widget.projectId,
+            projectData: {
+              'title': widget.title,
+              'description': widget.description,
+              'githubUrl': widget.githubUrl,
+              'youtubeUrl': widget.youtubeUrl,
+              'playStoreUrl': widget.playStoreUrl,
+              'technologies': widget.technologies,
+              'imageUrl': widget.imageUrl,
+            },
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
   Future<void> _deleteProject(BuildContext context) async {
     final bool? confirm = await showDialog<bool>(

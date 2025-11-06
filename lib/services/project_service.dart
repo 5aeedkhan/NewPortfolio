@@ -1,13 +1,11 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:portfolio/services/image_service.dart';
+import 'package:logger/logger.dart';
 
 class ProjectService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collection = 'projects';
+
+  final Logger _logger = Logger();
 
   // Add a new project
   Future<void> addProject({
@@ -17,6 +15,7 @@ class ProjectService {
     required List<String> technologies,
     required String githubUrl,
     required String youtubeUrl,
+    String playStoreUrl = '',
   }) async {
     try {
       await _firestore.collection(_collection).add({
@@ -26,10 +25,11 @@ class ProjectService {
         'technologies': technologies,
         'githubUrl': githubUrl,
         'youtubeUrl': youtubeUrl,
+        'playStoreUrl': playStoreUrl,
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      print('Error adding project: $e');
+      _logger.e('Error adding project: $e');
       rethrow;
     }
   }
@@ -47,7 +47,7 @@ class ProjectService {
     try {
       await _firestore.collection(_collection).doc(projectId).delete();
     } catch (e) {
-      print('Error deleting project: $e');
+      _logger.e('Error deleting project: $e');
       rethrow;
     }
   }
@@ -75,7 +75,7 @@ class ProjectService {
 
       await _firestore.collection(_collection).doc(projectId).update(updates);
     } catch (e) {
-      print('Error updating project: $e');
+      _logger.e('Error updating project: $e');
       rethrow;
     }
   }

@@ -71,7 +71,7 @@ class AboutSection extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () async {
                 const url =
-                    'https://drive.google.com/file/d/1KMJIqHs36MBWA8uRYF3sPMoLOy1mivUo/view?usp=sharing'; // Your CV Google Drive link
+                    'https://drive.google.com/file/d/19CYzti5pEICeUtLLjVyIawMiZra8Q3vT/view?usp=sharing';
                 final uri = Uri.parse(url);
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);
