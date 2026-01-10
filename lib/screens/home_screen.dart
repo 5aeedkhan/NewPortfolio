@@ -5,14 +5,213 @@ import 'package:portfolio/widgets/social_links.dart';
 import 'package:portfolio/widgets/about_section.dart';
 import 'package:portfolio/widgets/projects_section.dart';
 import 'package:portfolio/widgets/skills_section.dart';
+import 'package:portfolio/widgets/dynamic_social_links.dart';
+import 'package:portfolio/widgets/dynamic_about_section.dart';
+import 'package:portfolio/widgets/dynamic_skills_section.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:portfolio/screens/admin_panel.dart';
+import 'package:portfolio/screens/login_screen.dart';
+import 'package:portfolio/services/portfolio_service.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final PortfolioService _portfolioService = PortfolioService();
+  
+  // Profile data
+  String _profileName = 'Muhammad Saeed Khan';
+  String _profileTitle = 'Mobile App Developer';
+  String _profileImageUrl = 'https://i.ibb.co/P7rHjyV/Whats-App-Image-2025-05-16-at-9-39-19-AM.jpg';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      final data = await _portfolioService.getProfileData();
+      if (data != null) {
+        setState(() {
+          _profileName = data['name'] ?? _profileName;
+          _profileTitle = data['title'] ?? _profileTitle;
+          _profileImageUrl = data['profileImageUrl'] ?? _profileImageUrl;
+        });
+      }
+    } catch (e) {
+      print('Error loading profile data: $e');
+    }
+  }
+
+  Widget _buildAppBarButton(
+    BuildContext context,
+    IconData icon,
+    String tooltip,
+    VoidCallback onPressed,
+    Color color,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                color,
+                color.withOpacity(0.8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 18,
+          ),
+        ),
+        tooltip: tooltip,
+        padding: const EdgeInsets.all(4),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).primaryColor.withOpacity(0.8),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'My Portfolio',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.white.withOpacity(0.8),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Row(
+                    children: [
+                      _buildAppBarButton(
+                        context,
+                        Icons.admin_panel_settings,
+                        'Admin Panel',
+                        () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const AdminPanel(),
+                            ),
+                          );
+                        },
+                        Colors.purple,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildAppBarButton(
+                        context,
+                        Icons.logout,
+                        'Logout',
+                        () async {
+                          await FirebaseAuth.instance.signOut();
+                        },
+                        Colors.red,
+                      ),
+                    ],
+                  );
+                } else {
+                  return _buildAppBarButton(
+                    context,
+                    Icons.login,
+                    'Login',
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const LoginScreen(),
+                      );
+                    },
+                    Theme.of(context).primaryColor,
+                  );
+                }
+              },
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -42,7 +241,7 @@ class HomeScreen extends StatelessWidget {
                         backgroundColor: Colors.white,
                         child: ClipOval(
                           child: CachedNetworkImage(
-                            imageUrl: 'https://i.ibb.co/P7rHjyV/Whats-App-Image-2025-05-16-at-9-39-19-AM.jpg',
+                            imageUrl: _profileImageUrl,
                             width: 190,
                             height: 220,
                             fit: BoxFit.cover,
@@ -67,7 +266,7 @@ class HomeScreen extends StatelessWidget {
                     // Name with optimized text rendering
                     Center(
                       child: Text(
-                        'Muhammad Saeed Khan',
+                        _profileName,
                         style: GoogleFonts.poppins(
                           fontSize: MediaQuery.of(context).size.width < 600 ? 32 : 40,
                           fontWeight: FontWeight.bold,
@@ -80,7 +279,7 @@ class HomeScreen extends StatelessWidget {
 
                     // Title with optimized text rendering
                     Text(
-                      'Mobile App Developer',
+                      _profileTitle,
                       style: GoogleFonts.poppins(
                         fontSize: MediaQuery.of(context).size.width < 600 ? 20 : 24,
                         color: Colors.white.withOpacity(0.9),
@@ -90,7 +289,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 20),
 
                     // Social Links
-                    const SocialLinks(),
+                    const DynamicSocialLinks(),
 
                     const SizedBox(height: 40),
 
@@ -115,10 +314,10 @@ class HomeScreen extends StatelessWidget {
             ),
 
             // About Section
-            const AboutSection(),
+            const DynamicAboutSection(),
 
             // Skills Section
-            const SkillsSection(),
+            const DynamicSkillsSection(),
 
             // Projects Section
             const ProjectsSection(),
