@@ -170,16 +170,22 @@ class _AddProjectFormState extends State<AddProjectForm> {
               controller: _descriptionController,
               decoration: InputDecoration(
                 labelText: 'Description',
-                hintText: 'Brief project description',
+                hintText: 'Describe your project in detail...',
                 prefixIcon: const Icon(Icons.description, size: 20),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 filled: true,
                 fillColor: Colors.grey.shade50,
+                alignLabelWithHint: true,
               ),
-              maxLines: 2,
+              maxLines: 6,
+              minLines: 3,
+              textAlign: TextAlign.start,
+              style: GoogleFonts.poppins(
+                height: 1.5,
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a description';

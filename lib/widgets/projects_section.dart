@@ -68,6 +68,10 @@ class ProjectsSection extends StatelessWidget {
                           builder: (context) => Dialog(
                             backgroundColor: Colors.transparent,
                             child: Container(
+                              constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width * 0.9,
+                                maxHeight: MediaQuery.of(context).size.height * 0.85,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
@@ -80,7 +84,7 @@ class ProjectsSection extends StatelessWidget {
                                 ],
                               ),
                               child: const SingleChildScrollView(
-                                padding: EdgeInsets.all(16),
+                                padding: EdgeInsets.all(20),
                                 child: AddProjectForm(),
                               ),
                             ),
@@ -715,8 +719,11 @@ void _showEditDialog(BuildContext context) {
     context: context,
     builder: (context) => Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(16),
       child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.9,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -729,17 +736,17 @@ void _showEditDialog(BuildContext context) {
           ],
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: EditProjectForm(
             projectId: widget.projectId,
             projectData: {
               'title': widget.title,
               'description': widget.description,
+              'imageUrl': widget.imageUrl,
+              'technologies': widget.technologies,
               'githubUrl': widget.githubUrl,
               'youtubeUrl': widget.youtubeUrl,
               'playStoreUrl': widget.playStoreUrl,
-              'technologies': widget.technologies,
-              'imageUrl': widget.imageUrl,
             },
           ),
         ),

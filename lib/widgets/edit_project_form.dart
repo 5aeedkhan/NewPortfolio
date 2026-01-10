@@ -166,8 +166,13 @@ class _EditProjectFormState extends State<EditProjectForm> {
             // Description
             TextFormField(
               controller: _descriptionController,
-              decoration: _inputDecoration('Description', 'Brief project description', Icons.description),
-              maxLines: 2,
+              decoration: _inputDecoration('Description', 'Describe your project in detail...', Icons.description),
+              maxLines: 6,
+              minLines: 3,
+              textAlign: TextAlign.start,
+              style: GoogleFonts.poppins(
+                height: 1.5,
+              ),
               validator: (value) => value!.isEmpty ? 'Please enter a description' : null,
             ),
             const SizedBox(height: 12),

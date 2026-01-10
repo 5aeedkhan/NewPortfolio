@@ -130,12 +130,12 @@ class _AdminPanelState extends State<AdminPanel> {
               // Management Cards
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(isMobile ? 20 : 32),
+                  padding: EdgeInsets.all(isMobile ? 12 : 16),
                   child: GridView.count(
                     crossAxisCount: isMobile ? 1 : 2,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: isMobile ? 1.0 : 1.2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 2.0,
                     children: [
                       _buildManagementCard(
                         context,
@@ -257,56 +257,56 @@ class _AdminPanelState extends State<AdminPanel> {
             
             // Content
             Padding(
-              padding: EdgeInsets.all(isMobile ? 20 : 24),
+              padding: EdgeInsets.all(isMobile ? 8 : 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Icon with gradient background
                   Container(
-                    padding: EdgeInsets.all(isMobile ? 16 : 20),
+                    padding: EdgeInsets.all(isMobile ? 8 : 10),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: gradientColors,
                       ),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          color: color.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: Icon(
                       icon,
                       color: Colors.white,
-                      size: isMobile ? 32 : 40,
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Title
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontSize: isMobile ? 18 : 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      size: isMobile ? 20 : 24,
                     ),
                   ),
                   
                   const SizedBox(height: 8),
                   
+                  // Title
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: isMobile ? 12 : 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 4),
+                  
                   // Description
                   Text(
                     description,
                     style: GoogleFonts.poppins(
-                      fontSize: isMobile ? 14 : 15,
+                      fontSize: isMobile ? 10 : 11,
                       color: Colors.grey[600],
-                      height: 1.4,
+                      height: 1.3,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -316,17 +316,17 @@ class _AdminPanelState extends State<AdminPanel> {
                   
                   // Edit button
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: gradientColors,
                       ),
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                          color: color.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -336,16 +336,16 @@ class _AdminPanelState extends State<AdminPanel> {
                         Text(
                           'Edit',
                           style: GoogleFonts.poppins(
-                            fontSize: isMobile ? 12 : 14,
+                            fontSize: isMobile ? 9 : 10,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 3),
                         Icon(
                           Icons.arrow_forward_ios,
                           color: Colors.white,
-                          size: isMobile ? 12 : 14,
+                          size: isMobile ? 8 : 10,
                         ),
                       ],
                     ),

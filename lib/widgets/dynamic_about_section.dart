@@ -114,6 +114,7 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
                   const SizedBox(height: 16),
                   Text(
                     _summary,
+                    textAlign: TextAlign.justify,
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       height: 1.6,
