@@ -217,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Hero Section
             Container(
-              height: MediaQuery.of(context).size.height,
+              height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
               width: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -261,12 +261,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ).animate().fadeIn().scale(),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
 
                     // Name with optimized text rendering
-                    Center(
+                    Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
                       child: Text(
                         _profileName,
+                        textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           fontSize: MediaQuery.of(context).size.width < 600 ? 32 : 40,
                           fontWeight: FontWeight.bold,
