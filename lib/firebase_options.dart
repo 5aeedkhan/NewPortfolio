@@ -56,9 +56,10 @@ class DefaultFirebaseOptions {
     apiKey: 'AIzaSyCX4QrmDUH9CEW1zhuP9flCiaCK_XD2Q_s',
     appId: '1:257265363134:web:957211d662da11466ed6ef',
     messagingSenderId: '257265363134',
-    projectId: 'portfolio-c4b78',
-    authDomain: 'portfolio-c4b78.firebaseapp.com',
-    storageBucket: 'portfolio-c4b78.firebasestorage.app',
+    projectId: 'saeedkhanportfolio',
+    authDomain: 'saeedkhanportfolio.firebaseapp.com',
+    storageBucket: 'saeedkhanportfolio.firebasestorage.app',
     measurementId: 'G-JFKTSM7J53',
   );
+
 }
