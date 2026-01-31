@@ -76,8 +76,11 @@ class AboutSection extends StatelessWidget {
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);
                 } else {
+                  if (!context.mounted) {
+                    return;
+                  }
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Could not open CV link: $url')),
+                    const SnackBar(content: Text('Could not open CV link.')),
                   );
                 }
               },
@@ -99,9 +102,8 @@ class AboutSection extends StatelessWidget {
                       BorderRadius.circular(30), // More rounded corners
                 ),
                 elevation: 5, // Increased elevation for a more prominent look
-                shadowColor: Theme.of(context)
-                    .primaryColor
-                    .withOpacity(0.5), // Add shadow with primary color
+                shadowColor:
+                    Theme.of(context).primaryColor.withValues(alpha: 0.5),
               ),
             )
                 .animate()
@@ -109,239 +111,6 @@ class AboutSection extends StatelessWidget {
                 .slideY(delay: const Duration(milliseconds: 300)),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildEducationEntry(String degree, String institution, String years,
-      [String? additionalInfo]) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            degree,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$institution, $years',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontStyle: FontStyle.italic,
-              color: Colors.grey[600],
-            ),
-          ),
-          if (additionalInfo != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              additionalInfo,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWorkExperienceEntry(String title, String company, String years,
-      List<String> responsibilities) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '$company, $years',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontStyle: FontStyle.italic,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: responsibilities
-                .map((resp) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.circle, size: 8, color: Colors.grey),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              resp,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                height: 1.5,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ))
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProjectEntry(String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.only(
-          bottom: 20.0), // Spacing between project entries
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 4), // Spacing between title and description
-          Text(
-            description,
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              height: 1.5,
-              color: Colors.grey[700],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCertificateEntry(String title, String issuer) {
-    return Padding(
-      padding: const EdgeInsets.only(
-          bottom: 12.0), // Spacing between certificate entries
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 4), // Spacing between title and issuer
-          Text(
-            issuer,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPersonalInfoEntry(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(
-          bottom: 8.0), // Spacing between personal info entries
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$label:',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(width: 8), // Spacing between label and value
-          Expanded(
-            child: Text(
-              value,
-              style: GoogleFonts.poppins(
-                fontSize: 15,
-                color: Colors.grey[700],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLinkEntry(
-      BuildContext context, String label, String url, IconData iconData) {
-    return Padding(
-      padding:
-          const EdgeInsets.only(bottom: 8.0), // Spacing between link entries
-      child: InkWell(
-        onTap: () async {
-          if (url.isNotEmpty) {
-            final uri = Uri.parse(url);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not launch link: $url')),
-              );
-            }
-          }
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(iconData,
-                size: 20, color: Theme.of(context).primaryColor), // Link icon
-            const SizedBox(width: 8), // Spacing between icon and label
-            Text(
-              '$label:',
-              style: GoogleFonts.poppins(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).primaryColor,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-            const SizedBox(width: 8), // Spacing between label and url
-            Expanded(
-              child: Text(
-                url,
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  color: Colors.blue[700], // Link color
-                  decoration: TextDecoration.underline,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

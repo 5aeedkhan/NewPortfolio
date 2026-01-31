@@ -187,7 +187,7 @@ class _SkillCardState extends State<SkillCard> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(0.2),
+                color: widget.color.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -202,7 +202,7 @@ class _SkillCardState extends State<SkillCard> {
                   Container(
                     padding: EdgeInsets.all(isMobile ? 10 : 12),
                     decoration: BoxDecoration(
-                      color: widget.color.withOpacity(0.1),
+                      color: widget.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -296,7 +296,7 @@ class _SkillCardState extends State<SkillCard> {
             ..rotateY(isHovered ? 0.05 : 0),
           child: Card(
             elevation: isHovered ? 8 : 4,
-            shadowColor: widget.color.withOpacity(0.3),
+            shadowColor: widget.color.withValues(alpha: 0.3),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
@@ -318,7 +318,7 @@ class _SkillCardState extends State<SkillCard> {
                       Container(
                         padding: EdgeInsets.all(isMobile ? 6 : 8),
                         decoration: BoxDecoration(
-                          color: widget.color.withOpacity(0.1),
+                          color: widget.color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -345,7 +345,7 @@ class _SkillCardState extends State<SkillCard> {
                       Icon(
                         Icons.arrow_forward_ios,
                         size: isMobile ? 14 : 16,
-                        color: widget.color.withOpacity(0.7),
+                        color: widget.color.withValues(alpha: 0.7),
                       ),
                     ],
                   ),

@@ -42,6 +42,9 @@ class _EditProfileFormState extends State<EditProfileForm> {
     
     try {
       final data = await _portfolioService.getProfileData();
+      if (!mounted) {
+        return;
+      }
       if (data != null) {
         setState(() {
           _nameController.text = data['name'] ?? 'Muhammad Saeed Khan';
@@ -50,9 +53,14 @@ class _EditProfileFormState extends State<EditProfileForm> {
         });
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Error loading profile data');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -70,6 +78,9 @@ class _EditProfileFormState extends State<EditProfileForm> {
         setState(() => _isUploading = true);
         
         final imageUrl = await _imageService.uploadImage(File(image.path));
+        if (!mounted) {
+          return;
+        }
         
         setState(() {
           _profileImageUrl = imageUrl;
@@ -79,6 +90,9 @@ class _EditProfileFormState extends State<EditProfileForm> {
         _showSuccessSnackBar('Image uploaded successfully');
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       setState(() => _isUploading = false);
       _showErrorSnackBar('Error uploading image: $e');
     }
@@ -96,12 +110,20 @@ class _EditProfileFormState extends State<EditProfileForm> {
           'updatedAt': DateTime.now().toIso8601String(),
         });
 
+        if (!mounted) {
+          return;
+        }
         _showSuccessSnackBar('Profile updated successfully');
         Navigator.pop(context);
       } catch (e) {
+        if (!mounted) {
+          return;
+        }
         _showErrorSnackBar('Error updating profile: $e');
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

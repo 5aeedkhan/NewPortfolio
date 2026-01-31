@@ -33,15 +33,23 @@ class _EditAboutFormState extends State<EditAboutForm> {
     
     try {
       final data = await _portfolioService.getAboutData();
+      if (!mounted) {
+        return;
+      }
       if (data != null) {
         setState(() {
           _summaryController.text = data['summary'] ?? '';
         });
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Error loading about data');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -55,12 +63,20 @@ class _EditAboutFormState extends State<EditAboutForm> {
           'updatedAt': DateTime.now().toIso8601String(),
         });
 
+        if (!mounted) {
+          return;
+        }
         _showSuccessSnackBar('About section updated successfully');
         Navigator.pop(context);
       } catch (e) {
+        if (!mounted) {
+          return;
+        }
         _showErrorSnackBar('Error updating about section: $e');
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

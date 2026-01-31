@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -6,13 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:portfolio/services/image_service.dart';
 import 'package:portfolio/widgets/edit_project_form.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../screens/login_screen.dart';
 
 class ProjectCard extends StatefulWidget {
   final String projectId;
@@ -72,7 +67,7 @@ class _ProjectCardState extends State<ProjectCard> {
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.white,
-                    widget.color.withOpacity(0.05),
+                    widget.color.withValues(alpha: 0.05),
                     Colors.white,
                   ],
                 ),
@@ -87,7 +82,7 @@ class _ProjectCardState extends State<ProjectCard> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Colors.white.withOpacity(0.9),
+                          Colors.white.withValues(alpha: 0.9),
                           Colors.white,
                         ],
                       ),
@@ -106,7 +101,7 @@ class _ProjectCardState extends State<ProjectCard> {
                                   top: Radius.circular(18)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   blurRadius: 15,
                                   offset: const Offset(0, 8),
                                 ),
@@ -153,9 +148,9 @@ class _ProjectCardState extends State<ProjectCard> {
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
                                         colors: [
-                                          widget.color.withOpacity(0.0),
-                                          widget.color.withOpacity(0.1),
-                                          widget.color.withOpacity(0.2),
+                                          widget.color.withValues(alpha: 0.0),
+                                          widget.color.withValues(alpha: 0.1),
+                                          widget.color.withValues(alpha: 0.2),
                                         ],
                                       ),
                                       borderRadius: const BorderRadius.vertical(
@@ -172,7 +167,7 @@ class _ProjectCardState extends State<ProjectCard> {
                                         gradient: LinearGradient(
                                           colors: [
                                             Colors.transparent,
-                                            Colors.white.withOpacity(0.3),
+                                            Colors.white.withValues(alpha: 0.3),
                                             Colors.transparent,
                                           ],
                                         ),
@@ -193,11 +188,11 @@ class _ProjectCardState extends State<ProjectCard> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: widget.color.withOpacity(0.2),
+                                  color: widget.color.withValues(alpha: 0.2),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
                                 ),
@@ -255,7 +250,7 @@ class _ProjectCardState extends State<ProjectCard> {
                                         color: isHovered
                                             ? Theme.of(context)
                                                 .primaryColor
-                                                .withOpacity(0.1)
+                                                .withValues(alpha: 0.1)
                                             : Colors.blueGrey[50],
                                         borderRadius: BorderRadius.circular(15),
                                         border: Border.all(
@@ -388,7 +383,7 @@ class _ProjectCardState extends State<ProjectCard> {
                                   icon: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      gradient: LinearGradient(
+                                      gradient: const LinearGradient(
                                         colors: [
                                           Colors.orange,
                                           Colors.deepOrange
@@ -450,19 +445,6 @@ class _ProjectCardState extends State<ProjectCard> {
         ));
   }
 
-  String _sanitizeImageUrl(String url) {
-    if (url.startsWith('@')) {
-      url = url.substring(1);
-    }
-    return url;
-  }
-
-  Future<bool> _canLaunchUrl(String url) async {
-    if (url.isEmpty) return false;
-    final uri = Uri.parse(url);
-    return await canLaunchUrl(uri);
-  }
-
   void _showEditDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -478,7 +460,7 @@ class _ProjectCardState extends State<ProjectCard> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -557,7 +539,7 @@ class _ProjectCardState extends State<ProjectCard> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
@@ -565,7 +547,7 @@ class _ProjectCardState extends State<ProjectCard> {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -579,23 +561,25 @@ class _ProjectCardState extends State<ProjectCard> {
             .doc(widget.projectId)
             .delete();
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Project deleted successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        if (!context.mounted) {
+          return;
         }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Project deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting project: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+        if (!context.mounted) {
+          return;
         }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting project: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

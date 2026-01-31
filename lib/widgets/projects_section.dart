@@ -1,15 +1,11 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:portfolio/services/image_service.dart';
 import 'package:portfolio/widgets/edit_project_form.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../screens/login_screen.dart';
 import 'add_project_form.dart';
 
 class ProjectsSection extends StatelessWidget {
@@ -57,11 +53,11 @@ class ProjectsSection extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ).animate().fadeIn().slideX(),
-                        Text(   'Scroll each card for more info',
+                        Text(
+                          'Scroll each card for more info',
                           style: GoogleFonts.poppins(
-                            fontSize: isMobile ? 10 : 12,
-                            color: Colors.grey[900]
-                          ),
+                              fontSize: isMobile ? 10 : 12,
+                              color: Colors.grey[900]),
                         ).animate().fadeIn().slideX(),
                         StreamBuilder<User?>(
                           stream: FirebaseAuth.instance.authStateChanges(),
@@ -75,15 +71,23 @@ class ProjectsSection extends StatelessWidget {
                                       backgroundColor: Colors.transparent,
                                       child: Container(
                                         constraints: BoxConstraints(
-                                          maxWidth: MediaQuery.of(context).size.width * 0.9,
-                                          maxHeight: MediaQuery.of(context).size.height * 0.85,
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.9,
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.85,
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.black.withOpacity(0.1),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.1),
                                               blurRadius: 20,
                                               offset: const Offset(0, 10),
                                             ),
@@ -103,11 +107,13 @@ class ProjectsSection extends StatelessWidget {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
-                                  backgroundColor: Theme.of(context).primaryColor,
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
                                   foregroundColor: Colors.white,
                                   elevation: 3,
-                                  shadowColor:
-                                      Theme.of(context).primaryColor.withOpacity(0.5),
+                                  shadowColor: Theme.of(context)
+                                      .primaryColor
+                                      .withValues(alpha: 0.5),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -131,11 +137,11 @@ class ProjectsSection extends StatelessWidget {
                           ),
                         ).animate().fadeIn().slideX(),
                         const SizedBox(height: 8),
-                        Text(   'Scroll each card for more info',
+                        Text(
+                          'Scroll each card for more info',
                           style: GoogleFonts.poppins(
-                            fontSize: isMobile ? 9 : 11,
-                            color: Colors.grey[900]
-                          ),
+                              fontSize: isMobile ? 9 : 11,
+                              color: Colors.grey[900]),
                         ).animate().fadeIn().slideX(),
                         const SizedBox(height: 8),
                         StreamBuilder<User?>(
@@ -152,15 +158,23 @@ class ProjectsSection extends StatelessWidget {
                                         backgroundColor: Colors.transparent,
                                         child: Container(
                                           constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context).size.width * 0.9,
-                                            maxHeight: MediaQuery.of(context).size.height * 0.85,
+                                            maxWidth: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.9,
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.85,
                                           ),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(0.1),
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.1),
                                                 blurRadius: 20,
                                                 offset: const Offset(0, 10),
                                               ),
@@ -180,11 +194,13 @@ class ProjectsSection extends StatelessWidget {
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 8),
-                                    backgroundColor: Theme.of(context).primaryColor,
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
                                     foregroundColor: Colors.white,
                                     elevation: 3,
-                                    shadowColor:
-                                        Theme.of(context).primaryColor.withOpacity(0.5),
+                                    shadowColor: Theme.of(context)
+                                        .primaryColor
+                                        .withValues(alpha: 0.5),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -225,7 +241,7 @@ class ProjectsSection extends StatelessWidget {
               }
 
               if (snapshot.hasError) {
-                print('Firestore error: ${snapshot.error}');
+                debugPrint('Firestore error: ${snapshot.error}');
                 return Center(
                   child: Column(
                     children: [
@@ -241,13 +257,6 @@ class ProjectsSection extends StatelessWidget {
                         onPressed: () {
                           (context as Element).markNeedsBuild();
                         },
-                        child: Text(
-                          'Retry',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
@@ -255,6 +264,13 @@ class ProjectsSection extends StatelessWidget {
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Retry',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -287,7 +303,7 @@ class ProjectsSection extends StatelessWidget {
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
                   final doc = snapshot.data!.docs[index];
-                  final data = doc.data() as Map<String, dynamic>;
+                  final data = doc.data();
                   final imageUrl = data['imageUrl'] ?? '';
                   return ProjectCard(
                     title: data['title'] ?? '',
@@ -359,7 +375,7 @@ class _ProjectCardState extends State<ProjectCard> {
     setState(() {
       isPulsing = true;
     });
-    
+
     // Add a small delay before showing dialog to let animation play
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
@@ -392,7 +408,7 @@ class _ProjectCardState extends State<ProjectCard> {
       showGesture = true;
       isHovered = true;
     });
-    
+
     // Hide gesture after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -422,22 +438,24 @@ class _ProjectCardState extends State<ProjectCard> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: isHovered ? Colors.black.withOpacity(0.2) : Colors.black.withOpacity(0.1),
+                color: isHovered
+                    ? Colors.black.withValues(alpha: 0.2)
+                    : Colors.black.withValues(alpha: 0.1),
                 blurRadius: isHovered ? 12 : 8,
                 offset: const Offset(0, 4),
               ),
               if (isPulsing)
                 BoxShadow(
-                  color: Theme.of(context).primaryColor.withOpacity(0.4),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.4),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
             ],
             border: Border.all(
-              color: isPulsing 
-                  ? Theme.of(context).primaryColor.withOpacity(0.6)
-                  : isHovered 
-                      ? Theme.of(context).primaryColor.withOpacity(0.3)
+              color: isPulsing
+                  ? Theme.of(context).primaryColor.withValues(alpha: 0.6)
+                  : isHovered
+                      ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
                       : Colors.transparent,
               width: isPulsing ? 3 : 2,
             ),
@@ -451,11 +469,13 @@ class _ProjectCardState extends State<ProjectCard> {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(16)),
                     color: Colors.grey[100],
                   ),
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(16)),
                     child: _isValidImageUrl(sanitizedUrl)
                         ? CachedNetworkImage(
                             imageUrl: sanitizedUrl,
@@ -463,20 +483,23 @@ class _ProjectCardState extends State<ProjectCard> {
                             placeholder: (context, url) => Container(
                               color: Colors.grey[200],
                               child: const Center(
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
                             ),
                             errorWidget: (context, url, error) => Container(
                               color: Colors.grey[300],
                               child: const Center(
-                                child: Icon(Icons.error_outline, color: Colors.red),
+                                child: Icon(Icons.error_outline,
+                                    color: Colors.red),
                               ),
                             ),
                           )
                         : Container(
                             color: Colors.grey[300],
                             child: const Center(
-                              child: Icon(Icons.image_not_supported, color: Colors.grey),
+                              child: Icon(Icons.image_not_supported,
+                                  color: Colors.grey),
                             ),
                           ),
                   ),
@@ -486,7 +509,8 @@ class _ProjectCardState extends State<ProjectCard> {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -513,16 +537,21 @@ class _ProjectCardState extends State<ProjectCard> {
                             builder: (context, value, child) {
                               return Icon(
                                 Icons.touch_app,
-                                color: Theme.of(context).primaryColor.withOpacity(0.6),
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withValues(alpha: 0.6),
                                 size: isMobile ? 22 : 26,
-                              ).animate(
-                                onPlay: (controller) => controller.repeat(reverse: true),
-                              ).scale(
-                                begin: const Offset(1.0, 1.0),
-                                end: const Offset(1.1, 1.1),
-                                duration: const Duration(milliseconds: 400),
-                                curve: Curves.easeInOut,
-                              );
+                              )
+                                  .animate(
+                                    onPlay: (controller) =>
+                                        controller.repeat(reverse: true),
+                                  )
+                                  .scale(
+                                    begin: const Offset(1.0, 1.0),
+                                    end: const Offset(1.1, 1.1),
+                                    duration: const Duration(milliseconds: 400),
+                                    curve: Curves.easeInOut,
+                                  );
                             },
                           ),
                         ),
@@ -538,22 +567,25 @@ class _ProjectCardState extends State<ProjectCard> {
               ),
             ],
           ),
-        ).animate(
-          onPlay: (controller) => isPulsing ? controller.repeat() : null,
-        ).scale(
-          begin: const Offset(1.0, 1.0),
-          end: isPulsing ? const Offset(1.05, 1.05) : const Offset(1.0, 1.0),
-          duration: Duration(milliseconds: isPulsing ? 800 : 200),
-          curve: Curves.easeInOut,
-          alignment: Alignment.center,
-        ),
+        )
+            .animate(
+              onPlay: (controller) => isPulsing ? controller.repeat() : null,
+            )
+            .scale(
+              begin: const Offset(1.0, 1.0),
+              end:
+                  isPulsing ? const Offset(1.05, 1.05) : const Offset(1.0, 1.0),
+              duration: Duration(milliseconds: isPulsing ? 800 : 200),
+              curve: Curves.easeInOut,
+              alignment: Alignment.center,
+            ),
       ),
     );
   }
 
   List<Widget> _buildActionButtons(bool isMobile) {
     List<Widget> buttons = [];
-    
+
     if (widget.playStoreUrl.isNotEmpty) {
       buttons.add(
         _buildIconButton(
@@ -570,7 +602,7 @@ class _ProjectCardState extends State<ProjectCard> {
         ),
       );
     }
-    
+
     if (widget.githubUrl.isNotEmpty) {
       buttons.add(
         _buildIconButton(
@@ -587,7 +619,7 @@ class _ProjectCardState extends State<ProjectCard> {
         ),
       );
     }
-    
+
     if (widget.youtubeUrl.isNotEmpty) {
       buttons.add(
         _buildIconButton(
@@ -604,11 +636,12 @@ class _ProjectCardState extends State<ProjectCard> {
         ),
       );
     }
-    
+
     return buttons;
   }
 
-  Widget _buildIconButton(IconData icon, String label, VoidCallback onPressed, Color color, bool isMobile) {
+  Widget _buildIconButton(IconData icon, String label, VoidCallback onPressed,
+      Color color, bool isMobile) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -658,51 +691,51 @@ class _ProjectCardState extends State<ProjectCard> {
       final uri = Uri.parse(url);
       return uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
     } catch (e) {
-      print('Invalid URL format: $url');
+      debugPrint('Invalid URL format: $url');
       return false;
     }
   }
 
-void _showEditDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.9,
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+  void _showEditDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: EditProjectForm(
+              projectId: widget.projectId,
+              projectData: {
+                'title': widget.title,
+                'description': widget.description,
+                'imageUrl': widget.imageUrl,
+                'technologies': widget.technologies,
+                'githubUrl': widget.githubUrl,
+                'youtubeUrl': widget.youtubeUrl,
+                'playStoreUrl': widget.playStoreUrl,
+              },
             ),
-          ],
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: EditProjectForm(
-            projectId: widget.projectId,
-            projectData: {
-              'title': widget.title,
-              'description': widget.description,
-              'imageUrl': widget.imageUrl,
-              'technologies': widget.technologies,
-              'githubUrl': widget.githubUrl,
-              'youtubeUrl': widget.youtubeUrl,
-              'playStoreUrl': widget.playStoreUrl,
-            },
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Future<void> _deleteProject(BuildContext context) async {
     final bool? confirm = await showDialog<bool>(
@@ -844,7 +877,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 30,
               offset: const Offset(0, 15),
             ),
@@ -855,7 +888,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
           children: [
             // Animated Header with close button
             _buildHeader(context, isMobile),
-            
+
             // Scrollable content
             Flexible(
               child: SingleChildScrollView(
@@ -866,7 +899,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
                     // Project Image with animation
                     if (_isValidImageUrl(sanitizedUrl))
                       _buildProjectImage(sanitizedUrl, isMobile),
-                    
+
                     // Description with animation
                     if (widget.description.isNotEmpty) ...[
                       _buildSectionTitle('Description', isMobile),
@@ -874,7 +907,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
                       _buildDescription(isMobile),
                       const SizedBox(height: 24),
                     ],
-                    
+
                     // Technologies with animation
                     if (widget.technologies.isNotEmpty) ...[
                       _buildSectionTitle('Technologies', isMobile),
@@ -882,7 +915,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
                       _buildTechnologies(isMobile),
                       const SizedBox(height: 24),
                     ],
-                    
+
                     // Action Buttons with animation
                     if (_hasAnyLinks()) ...[
                       _buildSectionTitle('Links', isMobile),
@@ -908,7 +941,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
           end: Alignment.bottomRight,
           colors: [
             Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.8),
+            Theme.of(context).primaryColor.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -973,12 +1006,13 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
     );
   }
 
-  Widget _buildHeaderButton(IconData icon, String tooltip, VoidCallback onPressed, Color color) {
+  Widget _buildHeaderButton(
+      IconData icon, String tooltip, VoidCallback onPressed, Color color) {
     return Container(
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: IconButton(
         onPressed: onPressed,
@@ -1006,7 +1040,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -1097,13 +1131,13 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Theme.of(context).primaryColor.withOpacity(0.1),
-                Theme.of(context).primaryColor.withOpacity(0.05),
+                Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                Theme.of(context).primaryColor.withValues(alpha: 0.05),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Theme.of(context).primaryColor.withOpacity(0.3),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
             ),
           ),
           child: Text(
@@ -1180,7 +1214,8 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
     ).animate().fadeIn().slideY(begin: 0.3, delay: 600.milliseconds);
   }
 
-  Widget _buildActionButton(IconData icon, String label, Color color, VoidCallback onPressed, bool isMobile) {
+  Widget _buildActionButton(IconData icon, String label, Color color,
+      VoidCallback onPressed, bool isMobile) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: AnimatedContainer(
@@ -1206,7 +1241,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
               borderRadius: BorderRadius.circular(12),
             ),
             elevation: 4,
-            shadowColor: color.withOpacity(0.3),
+            shadowColor: color.withValues(alpha: 0.3),
           ),
         ),
       ),
@@ -1215,9 +1250,9 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
 
   bool _hasAnyLinks() {
     return widget.playStoreUrl.isNotEmpty ||
-           widget.githubUrl.isNotEmpty ||
-           widget.youtubeUrl.isNotEmpty ||
-           widget.demoUrl.isNotEmpty;
+        widget.githubUrl.isNotEmpty ||
+        widget.youtubeUrl.isNotEmpty ||
+        widget.demoUrl.isNotEmpty;
   }
 
   String _sanitizeImageUrl(String url) {
@@ -1241,6 +1276,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
 }
 
 double get screenHeight {
-  return WidgetsBinding.instance.platformDispatcher.views.first.physicalSize.height /
+  return WidgetsBinding
+          .instance.platformDispatcher.views.first.physicalSize.height /
       WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
 }

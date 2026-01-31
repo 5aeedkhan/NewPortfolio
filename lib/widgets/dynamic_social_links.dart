@@ -42,14 +42,19 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
       final data = await _portfolioService.getSocialLinksData();
       if (data != null && data['links'] != null) {
         final List<dynamic> links = data['links'];
-        final socialLinks = links.map((linkData) {
-          return SocialLinkData(
-            platform: linkData['platform'] ?? '',
-            url: linkData['url'] ?? '',
-            icon: _getIconFromCodePoint(int.tryParse(linkData['icon'] ?? '0') ?? 0),
-            color: Color(int.tryParse(linkData['color'] ?? '0') ?? 0xFF000000),
-          );
-        }).where((link) => link.url.isNotEmpty).toList();
+        final socialLinks = links
+            .map((linkData) {
+              return SocialLinkData(
+                platform: linkData['platform'] ?? '',
+                url: linkData['url'] ?? '',
+                icon: _getIconFromCodePoint(
+                    int.tryParse(linkData['icon'] ?? '0') ?? 0),
+                color:
+                    Color(int.tryParse(linkData['color'] ?? '0') ?? 0xFF000000),
+              );
+            })
+            .where((link) => link.url.isNotEmpty)
+            .toList();
 
         setState(() {
           _socialLinks = socialLinks;
@@ -63,7 +68,7 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
         });
       }
     } catch (e) {
-      print('Error loading social links: $e');
+      debugPrint('Error loading social links: $e');
       setState(() {
         _socialLinks = _getDefaultSocialLinks();
         _isLoading = false;
@@ -102,16 +107,26 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
 
   IconData _getIconFromCodePoint(int codePoint) {
     switch (codePoint) {
-      case 0xe0be: return Icons.email;
-      case 0xf0e1: return Icons.link;
-      case 0xf0c1: return Icons.work;
-      case 0xf19d: return FontAwesomeIcons.linkedin;
-      case 0xf09b: return FontAwesomeIcons.github;
-      case 0xf232: return FontAwesomeIcons.whatsapp;
-      case 0xf08c: return FontAwesomeIcons.facebook;
-      case 0xf16d: return FontAwesomeIcons.instagram;
-      case 0xf0ac: return FontAwesomeIcons.language;
-      default: return Icons.link;
+      case 0xe0be:
+        return Icons.email;
+      case 0xf0e1:
+        return Icons.link;
+      case 0xf0c1:
+        return Icons.work;
+      case 0xf19d:
+        return FontAwesomeIcons.linkedin;
+      case 0xf09b:
+        return FontAwesomeIcons.github;
+      case 0xf232:
+        return FontAwesomeIcons.whatsapp;
+      case 0xf08c:
+        return FontAwesomeIcons.facebook;
+      case 0xf16d:
+        return FontAwesomeIcons.instagram;
+      case 0xf0ac:
+        return FontAwesomeIcons.language;
+      default:
+        return Icons.link;
     }
   }
 
@@ -149,7 +164,9 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
   }) {
     String finalUrl;
     if (platform.toLowerCase() == 'email') {
-      finalUrl = kIsWeb ? 'https://mail.google.com/mail/?view=compose&fs=1&to=$url' : 'mailto:$url';
+      finalUrl = kIsWeb
+          ? 'https://mail.google.com/mail/?view=compose&fs=1&to=$url'
+          : 'mailto:$url';
     } else if (platform.toLowerCase() == 'whatsapp') {
       finalUrl = kIsWeb ? 'https://wa.me/$url' : 'whatsapp://send?phone=$url';
     } else {
@@ -162,22 +179,30 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
         icon: Icon(icon, color: Colors.white, size: 28),
         onPressed: () async {
           final uri = Uri.parse(finalUrl);
-          print('Attempting to launch link: $finalUrl');
-          if (await canLaunchUrl(uri)) {
-            print('Link can be launched.');
+          debugPrint('Attempting to launch link: $finalUrl');
+          final canLaunch = await canLaunchUrl(uri);
+          if (!context.mounted) {
+            return;
+          }
+          if (canLaunch) {
+            debugPrint('Link can be launched.');
             try {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
-              print('Link launched successfully.');
+              debugPrint('Link launched successfully.');
             } catch (e) {
-              print('Error launching link: $e');
+              debugPrint('Error launching link: $e');
+              if (!context.mounted) {
+                return;
+              }
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not launch link: ${e.toString()}')),
+                SnackBar(
+                    content: Text('Could not launch link: ${e.toString()}')),
               );
             }
           } else {
-            print('Link cannot be launched.');
+            debugPrint('Link cannot be launched.');
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Could not launch link.')),
+              const SnackBar(content: Text('Could not launch link.')),
             );
           }
         },

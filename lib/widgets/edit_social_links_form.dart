@@ -27,8 +27,8 @@ class EditSocialLinksForm extends StatefulWidget {
 class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
   final PortfolioService _portfolioService = PortfolioService();
   bool _isLoading = false;
-  
-  List<SocialLink> _socialLinks = [
+
+  final List<SocialLink> _socialLinks = [
     SocialLink(
       platform: 'GitHub',
       url: '',
@@ -98,16 +98,20 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
 
   Future<void> _loadSocialLinksData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final data = await _portfolioService.getSocialLinksData();
+      if (!mounted) {
+        return;
+      }
       if (data != null && data['links'] != null) {
         final List<dynamic> links = data['links'];
         for (var linkData in links) {
           final platform = linkData['platform'] as String;
           final url = linkData['url'] as String;
-          
-          final index = _socialLinks.indexWhere((link) => link.platform == platform);
+
+          final index =
+              _socialLinks.indexWhere((link) => link.platform == platform);
           if (index != -1) {
             _socialLinks[index].url = url;
             _controllers[platform]?.text = url;
@@ -116,9 +120,14 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
         setState(() {});
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Error loading social links data');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -126,24 +135,35 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
     setState(() => _isLoading = true);
 
     try {
-      final linksData = _socialLinks.map((link) => {
-        'platform': link.platform,
-        'url': link.url.trim(),
-        'icon': link.icon.codePoint.toString(),
-        'color': link.color.value.toString(),
-      }).where((link) => link['url'].toString().isNotEmpty).toList();
+      final linksData = _socialLinks
+          .map((link) => {
+                'platform': link.platform,
+                'url': link.url.trim(),
+                'icon': link.icon.codePoint.toString(),
+                'color': link.color.toARGB32().toString(),
+              })
+          .where((link) => link['url'].toString().isNotEmpty)
+          .toList();
 
       await _portfolioService.updateSocialLinksData({
         'links': linksData,
         'updatedAt': DateTime.now().toIso8601String(),
       });
 
+      if (!mounted) {
+        return;
+      }
       _showSuccessSnackBar('Social links updated successfully');
       Navigator.pop(context);
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Error updating social links: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -178,9 +198,9 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
             color: Colors.black87,
           ),
         ).animate().fadeIn().slideX(),
-        
+
         const SizedBox(height: 8),
-        
+
         Text(
           'Add or update your social media and contact links. Empty fields will be hidden.',
           style: GoogleFonts.poppins(
@@ -188,23 +208,23 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
             color: Colors.grey[600],
           ),
         ).animate().fadeIn().slideX(delay: const Duration(milliseconds: 100)),
-        
+
         const SizedBox(height: 20),
-        
+
         Expanded(
           child: ListView.builder(
             itemCount: _socialLinks.length,
             itemBuilder: (context, index) {
               final link = _socialLinks[index];
               final controller = _controllers[link.platform]!;
-              
+
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
                 elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color: link.color.withOpacity(0.3),
+                    color: link.color.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -218,7 +238,7 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: link.color.withOpacity(0.1),
+                              color: link.color.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
@@ -238,9 +258,7 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
                           ),
                         ],
                       ),
-                      
                       const SizedBox(height: 12),
-                      
                       TextFormField(
                         controller: controller,
                         decoration: InputDecoration(
@@ -261,10 +279,13 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
                         validator: (value) {
                           if (value != null && value.trim().isNotEmpty) {
                             // Basic URL validation
-                            if (!value.startsWith('http://') && !value.startsWith('https://') && link.platform != 'Email') {
+                            if (!value.startsWith('http://') &&
+                                !value.startsWith('https://') &&
+                                link.platform != 'Email') {
                               return 'Please enter a valid URL starting with http:// or https://';
                             }
-                            if (link.platform == 'Email' && !value.contains('@')) {
+                            if (link.platform == 'Email' &&
+                                !value.contains('@')) {
                               return 'Please enter a valid email address';
                             }
                           }
@@ -275,9 +296,9 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
                   ),
                 ),
               ).animate().fadeIn().slideY(
-                delay: Duration(milliseconds: 100 * index),
-                duration: const Duration(milliseconds: 300),
-              );
+                    delay: Duration(milliseconds: 100 * index),
+                    duration: const Duration(milliseconds: 300),
+                  );
             },
           ),
         ),

@@ -54,12 +54,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCX4QrmDUH9CEW1zhuP9flCiaCK_XD2Q_s',
-    appId: '1:257265363134:web:957211d662da11466ed6ef',
+    appId: '1:257265363134:web:d2a80a65f9016ce76ed6ef',
     messagingSenderId: '257265363134',
-    projectId: 'saeedkhanportfolio',
-    authDomain: 'saeedkhanportfolio.firebaseapp.com',
-    storageBucket: 'saeedkhanportfolio.firebasestorage.app',
-    measurementId: 'G-JFKTSM7J53',
+    projectId: 'portfolio-c4b78',
+    authDomain: 'portfolio-c4b78.firebaseapp.com',
+    storageBucket: 'portfolio-c4b78.firebasestorage.app',
+    measurementId: 'G-1SJFVSFS3C',
   );
 
 }

@@ -27,8 +27,8 @@ class EditSkillsForm extends StatefulWidget {
 class _EditSkillsFormState extends State<EditSkillsForm> {
   final PortfolioService _portfolioService = PortfolioService();
   bool _isLoading = false;
-  
-  List<SkillCategory> _skillCategories = [
+
+  final List<SkillCategory> _skillCategories = [
     SkillCategory(
       title: 'Programming Languages',
       skills: [],
@@ -87,20 +87,31 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
 
   Future<void> _loadSkillsData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final data = await _portfolioService.getSkillsData();
+      if (!mounted) {
+        return;
+      }
       if (data != null && data['categories'] != null) {
         final List<dynamic> categories = data['categories'];
-        for (int i = 0; i < categories.length && i < _skillCategories.length; i++) {
-          _skillCategories[i].skills = List<String>.from(categories[i]['skills'] ?? []);
+        for (int i = 0;
+            i < categories.length && i < _skillCategories.length;
+            i++) {
+          _skillCategories[i].skills =
+              List<String>.from(categories[i]['skills'] ?? []);
         }
         setState(() {});
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Error loading skills data');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -108,24 +119,34 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
     setState(() => _isLoading = true);
 
     try {
-      final categoriesData = _skillCategories.map((category) => {
-        'title': category.title,
-        'skills': category.skills,
-        'icon': category.icon.codePoint.toString(),
-        'color': category.color.value.toString(),
-      }).toList();
+      final categoriesData = _skillCategories
+          .map((category) => {
+                'title': category.title,
+                'skills': category.skills,
+                'icon': category.icon.codePoint.toString(),
+                'color': category.color.toARGB32().toString(),
+              })
+          .toList();
 
       await _portfolioService.updateSkillsData({
         'categories': categoriesData,
         'updatedAt': DateTime.now().toIso8601String(),
       });
 
+      if (!mounted) {
+        return;
+      }
       _showSuccessSnackBar('Skills updated successfully');
       Navigator.pop(context);
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Error updating skills: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -193,9 +214,9 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
             color: Colors.black87,
           ),
         ).animate().fadeIn().slideX(),
-        
+
         const SizedBox(height: 8),
-        
+
         Text(
           'Organize your skills by categories. Click on any category to manage its skills.',
           style: GoogleFonts.poppins(
@@ -203,9 +224,9 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
             color: Colors.grey[600],
           ),
         ).animate().fadeIn().slideX(delay: const Duration(milliseconds: 100)),
-        
+
         const SizedBox(height: 20),
-        
+
         Expanded(
           child: ListView.builder(
             itemCount: _skillCategories.length,
@@ -217,7 +238,7 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color: category.color.withOpacity(0.3),
+                    color: category.color.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -225,7 +246,7 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: category.color.withOpacity(0.1),
+                      color: category.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -256,7 +277,7 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
                         icon: const Icon(Icons.add),
                         tooltip: 'Add Skill',
                       ),
-                      Icon(Icons.expand_more),
+                      const Icon(Icons.expand_more),
                     ],
                   ),
                   children: [
@@ -293,13 +314,16 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  onPressed: () => _editSkill(index, skillIndex),
+                                  onPressed: () =>
+                                      _editSkill(index, skillIndex),
                                   icon: const Icon(Icons.edit, size: 20),
                                   tooltip: 'Edit',
                                 ),
                                 IconButton(
-                                  onPressed: () => _deleteSkill(index, skillIndex),
-                                  icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                                  onPressed: () =>
+                                      _deleteSkill(index, skillIndex),
+                                  icon: const Icon(Icons.delete,
+                                      size: 20, color: Colors.red),
                                   tooltip: 'Delete',
                                 ),
                               ],
@@ -310,9 +334,9 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
                   ],
                 ),
               ).animate().fadeIn().slideY(
-                delay: Duration(milliseconds: 100 * index),
-                duration: const Duration(milliseconds: 300),
-              );
+                    delay: Duration(milliseconds: 100 * index),
+                    duration: const Duration(milliseconds: 300),
+                  );
             },
           ),
         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'dart:typed_data';
 import '../services/project_service.dart';
 import '../services/image_service.dart';
@@ -18,7 +17,7 @@ class _AddProjectFormState extends State<AddProjectForm> {
   final _projectService = ProjectService();
   final _imageService = ImageService();
   final _imagePicker = ImagePicker();
-  
+
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _githubUrlController = TextEditingController();
@@ -38,7 +37,7 @@ class _AddProjectFormState extends State<AddProjectForm> {
         maxHeight: 1200,
         imageQuality: 85,
       );
-      
+
       if (image != null) {
         final bytes = await image.readAsBytes();
         setState(() {
@@ -47,6 +46,9 @@ class _AddProjectFormState extends State<AddProjectForm> {
         });
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking image: $e')),
       );
@@ -59,15 +61,19 @@ class _AddProjectFormState extends State<AddProjectForm> {
         _isLoading = true;
         _uploadError = null;
       });
-      
+
       try {
-        final imageUrl = await _imageService.uploadImageBytes(_selectedImageBytes!);
-        
+        final imageUrl =
+            await _imageService.uploadImageBytes(_selectedImageBytes!);
+
         await _projectService.addProject(
           title: _titleController.text,
           description: _descriptionController.text,
           imageUrl: imageUrl,
-          technologies: _technologiesController.text.split(',').map((e) => e.trim()).toList(),
+          technologies: _technologiesController.text
+              .split(',')
+              .map((e) => e.trim())
+              .toList(),
           githubUrl: _githubUrlController.text,
           youtubeUrl: _youtubeUrlController.text,
         );
@@ -114,7 +120,7 @@ class _AddProjectFormState extends State<AddProjectForm> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -154,7 +160,8 @@ class _AddProjectFormState extends State<AddProjectForm> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
@@ -175,7 +182,8 @@ class _AddProjectFormState extends State<AddProjectForm> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 filled: true,
                 fillColor: Colors.grey.shade50,
                 alignLabelWithHint: true,
@@ -207,13 +215,15 @@ class _AddProjectFormState extends State<AddProjectForm> {
                       height: 150,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(8)),
                         border: Border(
                           bottom: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(8)),
                         child: Image.memory(
                           _selectedImageBytes!,
                           fit: BoxFit.contain,
@@ -222,11 +232,14 @@ class _AddProjectFormState extends State<AddProjectForm> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.error_outline, color: Colors.red.shade300, size: 24),
+                                  Icon(Icons.error_outline,
+                                      color: Colors.red.shade300, size: 24),
                                   const SizedBox(height: 4),
                                   Text(
                                     'Error loading image',
-                                    style: TextStyle(color: Colors.red.shade300, fontSize: 12),
+                                    style: TextStyle(
+                                        color: Colors.red.shade300,
+                                        fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -238,7 +251,8 @@ class _AddProjectFormState extends State<AddProjectForm> {
                   ],
                   if (_uploadError != null) ...[
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
                       child: Text(
                         _uploadError!,
                         style: const TextStyle(color: Colors.red, fontSize: 12),
@@ -252,11 +266,14 @@ class _AddProjectFormState extends State<AddProjectForm> {
                       onPressed: _isLoading ? null : _pickImage,
                       icon: const Icon(Icons.image, size: 18),
                       label: Text(
-                        _selectedImageBytes == null ? 'Select Image' : 'Change Image',
+                        _selectedImageBytes == null
+                            ? 'Select Image'
+                            : 'Change Image',
                         style: const TextStyle(fontSize: 12),
                       ),
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         backgroundColor: Theme.of(context).primaryColor,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -278,7 +295,8 @@ class _AddProjectFormState extends State<AddProjectForm> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
@@ -299,19 +317,20 @@ class _AddProjectFormState extends State<AddProjectForm> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
-validator: (value) {
-  if (value != null && value.isNotEmpty) {
-    if (!value.startsWith('http://') && !value.startsWith('https://')) {
-      return 'URL must start with http:// or https://';
-    }
-  }
-  return null;
-},
-
+              validator: (value) {
+                if (value != null && value.isNotEmpty) {
+                  if (!value.startsWith('http://') &&
+                      !value.startsWith('https://')) {
+                    return 'URL must start with http:// or https://';
+                  }
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -323,19 +342,20 @@ validator: (value) {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
-validator: (value) {
-  if (value != null && value.isNotEmpty) {
-    if (!value.startsWith('http://') && !value.startsWith('https://')) {
-      return 'URL must start with http:// or https://';
-    }
-  }
-  return null;
-},
-
+              validator: (value) {
+                if (value != null && value.isNotEmpty) {
+                  if (!value.startsWith('http://') &&
+                      !value.startsWith('https://')) {
+                    return 'URL must start with http:// or https://';
+                  }
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -347,19 +367,20 @@ validator: (value) {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 filled: true,
                 fillColor: Colors.grey.shade50,
               ),
-validator: (value) {
-  if (value != null && value.isNotEmpty) {
-    if (!value.startsWith('http://') && !value.startsWith('https://')) {
-      return 'URL must start with http:// or https://';
-    }
-  }
-  return null;
-},
-
+              validator: (value) {
+                if (value != null && value.isNotEmpty) {
+                  if (!value.startsWith('http://') &&
+                      !value.startsWith('https://')) {
+                    return 'URL must start with http:// or https://';
+                  }
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -395,4 +416,4 @@ validator: (value) {
       ),
     );
   }
-} 
+}

@@ -40,14 +40,19 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
       final data = await _portfolioService.getSkillsData();
       if (data != null && data['categories'] != null) {
         final List<dynamic> categories = data['categories'];
-        final skillCategories = categories.map((categoryData) {
-          return SkillCategory(
-            title: categoryData['title'] ?? '',
-            skills: List<String>.from(categoryData['skills'] ?? []),
-            icon: _getIconFromCodePoint(int.tryParse(categoryData['icon'] ?? '0') ?? 0),
-            color: Color(int.tryParse(categoryData['color'] ?? '0') ?? 0xFF000000),
-          );
-        }).where((category) => category.skills.isNotEmpty).toList();
+        final skillCategories = categories
+            .map((categoryData) {
+              return SkillCategory(
+                title: categoryData['title'] ?? '',
+                skills: List<String>.from(categoryData['skills'] ?? []),
+                icon: _getIconFromCodePoint(
+                    int.tryParse(categoryData['icon'] ?? '0') ?? 0),
+                color: Color(
+                    int.tryParse(categoryData['color'] ?? '0') ?? 0xFF000000),
+              );
+            })
+            .where((category) => category.skills.isNotEmpty)
+            .toList();
 
         setState(() {
           _skillCategories = skillCategories;
@@ -61,7 +66,7 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
         });
       }
     } catch (e) {
-      print('Error loading skills data: $e');
+      debugPrint('Error loading skills data: $e');
       setState(() {
         _skillCategories = _getDefaultSkills();
         _isLoading = false;
@@ -140,15 +145,24 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
 
   IconData _getIconFromCodePoint(int codePoint) {
     switch (codePoint) {
-      case 0xe86f: return Icons.code;
-      case 0xf37a: return Icons.flutter_dash;
-      case 0xe32c: return Icons.phone_android;
-      case 0xe2c4: return Icons.architecture;
-      case 0xe3c3: return Icons.merge_type;
-      case 0xe1b8: return Icons.design_services;
-      case 0xe869: return Icons.build;
-      case 0xe7fb: return Icons.people;
-      default: return Icons.code;
+      case 0xe86f:
+        return Icons.code;
+      case 0xf37a:
+        return Icons.flutter_dash;
+      case 0xe32c:
+        return Icons.phone_android;
+      case 0xe2c4:
+        return Icons.architecture;
+      case 0xe3c3:
+        return Icons.merge_type;
+      case 0xe1b8:
+        return Icons.design_services;
+      case 0xe869:
+        return Icons.build;
+      case 0xe7fb:
+        return Icons.people;
+      default:
+        return Icons.code;
     }
   }
 
@@ -281,7 +295,7 @@ class _SkillCardState extends State<SkillCard> {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(0.2),
+                color: widget.color.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -296,7 +310,7 @@ class _SkillCardState extends State<SkillCard> {
                   Container(
                     padding: EdgeInsets.all(isMobile ? 10 : 12),
                     decoration: BoxDecoration(
-                      color: widget.color.withOpacity(0.1),
+                      color: widget.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -333,34 +347,37 @@ class _SkillCardState extends State<SkillCard> {
               Flexible(
                 child: SingleChildScrollView(
                   child: Column(
-                    children: widget.skills.map((skill) => Padding(
-                      padding: EdgeInsets.only(bottom: isMobile ? 8 : 12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.arrow_right,
-                            size: isMobile ? 16 : 20,
-                            color: widget.color,
-                          ),
-                          SizedBox(width: isMobile ? 6 : 8),
-                          Expanded(
-                            child: Text(
-                              skill,
-                              style: GoogleFonts.poppins(
-                                fontSize: isMobile
-                                    ? 14
-                                    : isTablet
-                                        ? 15
-                                        : 16,
-                                color: Colors.grey[800],
-                                height: 1.5,
+                    children: widget.skills
+                        .map((skill) => Padding(
+                              padding:
+                                  EdgeInsets.only(bottom: isMobile ? 8 : 12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.arrow_right,
+                                    size: isMobile ? 16 : 20,
+                                    color: widget.color,
+                                  ),
+                                  SizedBox(width: isMobile ? 6 : 8),
+                                  Expanded(
+                                    child: Text(
+                                      skill,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: isMobile
+                                            ? 14
+                                            : isTablet
+                                                ? 15
+                                                : 16,
+                                        color: Colors.grey[800],
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )).toList(),
+                            ))
+                        .toList(),
                   ),
                 ),
               ),
@@ -378,137 +395,137 @@ class _SkillCardState extends State<SkillCard> {
     final isTablet = screenWidth >= 600 && screenWidth < 1200;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => isHovered = true),
-      onExit: (_) => setState(() => isHovered = false),
-      child: GestureDetector(
-        onTap: () => _showSkillsDialog(context),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, 0.001)
-            ..rotateX(isHovered ? 0.05 : 0)
-            ..rotateY(isHovered ? 0.05 : 0),
-          child: Card(
-            elevation: isHovered ? 8 : 4,
-            shadowColor: widget.color.withOpacity(0.3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: isHovered ? widget.color : Colors.transparent,
-                width: 2,
-              ),
-            ),
-            child: Container(
-              padding: EdgeInsets.all(isMobile ? 12 : 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
+        onEnter: (_) => setState(() => isHovered = true),
+        onExit: (_) => setState(() => isHovered = false),
+        child: GestureDetector(
+          onTap: () => _showSkillsDialog(context),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateX(isHovered ? 0.05 : 0)
+              ..rotateY(isHovered ? 0.05 : 0),
+            child: Card(
+              elevation: isHovered ? 8 : 4,
+              shadowColor: widget.color.withValues(alpha: 0.3),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: isHovered ? widget.color : Colors.transparent,
+                  width: 2,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(isMobile ? 6 : 8),
-                        decoration: BoxDecoration(
-                          color: widget.color.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          widget.icon,
-                          color: widget.color,
-                          size: isMobile ? 20 : 24,
-                        ),
-                      ),
-                      SizedBox(width: isMobile ? 8 : 12),
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          style: GoogleFonts.poppins(
-                            fontSize: isMobile
-                                ? 14
-                                : isTablet
-                                    ? 16
-                                    : 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+              child: Container(
+                padding: EdgeInsets.all(isMobile ? 12 : 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(isMobile ? 6 : 8),
+                          decoration: BoxDecoration(
+                            color: widget.color.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            widget.icon,
+                            color: widget.color,
+                            size: isMobile ? 20 : 24,
                           ),
                         ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        size: isMobile ? 14 : 16,
-                        color: widget.color.withOpacity(0.7),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: isMobile ? 8 : 12),
-                  Expanded(
-                    child: ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount:
-                          widget.skills.length > 5 ? 5 : widget.skills.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: isMobile ? 3 : 4),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.arrow_right,
-                                size: isMobile ? 12 : 14,
-                                color: widget.color,
-                              ),
-                              SizedBox(width: isMobile ? 2 : 3),
-                              Expanded(
-                                child: Text(
-                                  widget.skills[index],
-                                  style: GoogleFonts.poppins(
-                                    fontSize: isMobile
-                                        ? 11
-                                        : isTablet
-                                            ? 12
-                                            : 13,
-                                    color: Colors.grey[800],
-                                    height: 1.2,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                        SizedBox(width: isMobile ? 8 : 12),
+                        Expanded(
+                          child: Text(
+                            widget.title,
+                            style: GoogleFonts.poppins(
+                              fontSize: isMobile
+                                  ? 14
+                                  : isTablet
+                                      ? 16
+                                      : 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: isMobile ? 14 : 16,
+                          color: widget.color.withValues(alpha: 0.7),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isMobile ? 8 : 12),
+                    Expanded(
+                      child: ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount:
+                            widget.skills.length > 5 ? 5 : widget.skills.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: isMobile ? 3 : 4),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.arrow_right,
+                                  size: isMobile ? 12 : 14,
+                                  color: widget.color,
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (widget.skills.length > 5)
-                    Padding(
-                      padding: EdgeInsets.only(top: isMobile ? 4 : 6),
-                      child: Text(
-                        'Click to see all ${widget.skills.length} skills',
-                        style: GoogleFonts.poppins(
-                          fontSize: isMobile ? 10 : 11,
-                          color: widget.color,
-                          fontStyle: FontStyle.italic,
-                        ),
+                                SizedBox(width: isMobile ? 2 : 3),
+                                Expanded(
+                                  child: Text(
+                                    widget.skills[index],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: isMobile
+                                          ? 11
+                                          : isTablet
+                                              ? 12
+                                              : 13,
+                                      color: Colors.grey[800],
+                                      height: 1.2,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
-                ],
+                    if (widget.skills.length > 5)
+                      Padding(
+                        padding: EdgeInsets.only(top: isMobile ? 4 : 6),
+                        child: Text(
+                          'Click to see all ${widget.skills.length} skills',
+                          style: GoogleFonts.poppins(
+                            fontSize: isMobile ? 10 : 11,
+                            color: widget.color,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      )
-          .animate()
-          .fadeIn(
-            delay: Duration(milliseconds: 100 * widget.index),
-          )
-          .slideY(
-            begin: 0.2,
-            end: 0,
-            curve: Curves.easeOutQuad,
-          ));
+        )
+            .animate()
+            .fadeIn(
+              delay: Duration(milliseconds: 100 * widget.index),
+            )
+            .slideY(
+              begin: 0.2,
+              end: 0,
+              curve: Curves.easeOutQuad,
+            ));
   }
 }

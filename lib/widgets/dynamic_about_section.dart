@@ -35,7 +35,8 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
       } else {
         // Use default summary
         setState(() {
-          _summary = 'I am a passionate and detail-oriented Computer Science graduate with hands-on experience building cross-platform mobile apps using Flutter and Dart. I have worked through the full app development cycle — from gathering requirements and designing clean, user-friendly interfaces to integrating APIs and deploying functional, high-performing apps. I am well-versed in using Firebase, REST APIs, and various third-party tools to create solid mobile solutions. Currently, I am working as a Flutter Developer at IT Artificer, while also teaching as a Lecturer at KPIMS. This mix of development and teaching lets me apply my technical skills while helping others grow, which I genuinely enjoy.';
+          _summary =
+              'I am a passionate and detail-oriented Computer Science graduate with hands-on experience building cross-platform mobile apps using Flutter and Dart. I have worked through the full app development cycle — from gathering requirements and designing clean, user-friendly interfaces to integrating APIs and deploying functional, high-performing apps. I am well-versed in using Firebase, REST APIs, and various third-party tools to create solid mobile solutions. Currently, I am working as a Flutter Developer at IT Artificer, while also teaching as a Lecturer at KPIMS. This mix of development and teaching lets me apply my technical skills while helping others grow, which I genuinely enjoy.';
         });
       }
 
@@ -49,7 +50,8 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
       } else {
         // Use default CV URL
         setState(() {
-          _cvUrl = 'https://drive.google.com/file/d/19CYzti5pEICeUtLLjVyIawMiZra8Q3vT/view?usp=sharing';
+          _cvUrl =
+              'https://drive.google.com/file/d/19CYzti5pEICeUtLLjVyIawMiZra8Q3vT/view?usp=sharing';
         });
       }
 
@@ -57,7 +59,7 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading about data: $e');
+      debugPrint('Error loading about data: $e');
       setState(() {
         _isLoading = false;
       });
@@ -137,11 +139,16 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
               onPressed: () async {
                 if (_cvUrl.isNotEmpty) {
                   final uri = Uri.parse(_cvUrl);
-                  if (await canLaunchUrl(uri)) {
+                  final canLaunch = await canLaunchUrl(uri);
+                  if (!context.mounted) {
+                    return;
+                  }
+                  if (canLaunch) {
                     await launchUrl(uri, mode: LaunchMode.externalApplication);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Could not open CV link: $_cvUrl')),
+                      SnackBar(
+                          content: Text('Could not open CV link: $_cvUrl')),
                     );
                   }
                 }
@@ -149,20 +156,18 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
               icon: const Icon(Icons.description, size: 24),
               label: Text(_cvTitle,
                   style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600)),
+                      fontSize: 18, fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
                 elevation: 5,
-                shadowColor: Theme.of(context)
-                    .primaryColor
-                    .withOpacity(0.5),
+                shadowColor:
+                    Theme.of(context).primaryColor.withValues(alpha: 0.5),
               ),
             )
                 .animate()

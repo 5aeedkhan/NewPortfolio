@@ -1,17 +1,6 @@
 {
-  "flutter": {
-    "platforms": {
-      "dart": {
-        "lib/firebase_options.dart": {
-          "projectId": "saeedkhanportfolio",
-          "configurations": {
-            "web": "1:257265363134:web:957211d662da11466ed6ef"
-          }
-        }
-      }
-    }
-  },
   "hosting": {
+    "site": "saeedkhanportfolio",
     "public": "build/web",
     "ignore": [
       "firebase.json",

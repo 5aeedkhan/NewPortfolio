@@ -36,6 +36,9 @@ class _EditCVFormState extends State<EditCVForm> {
     
     try {
       final data = await _portfolioService.getCVData();
+      if (!mounted) {
+        return;
+      }
       if (data != null) {
         setState(() {
           _cvUrlController.text = data['cvUrl'] ?? '';
@@ -43,9 +46,14 @@ class _EditCVFormState extends State<EditCVForm> {
         });
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Error loading CV data');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -60,12 +68,20 @@ class _EditCVFormState extends State<EditCVForm> {
           'updatedAt': DateTime.now().toIso8601String(),
         });
 
+        if (!mounted) {
+          return;
+        }
         _showSuccessSnackBar('CV information updated successfully');
         Navigator.pop(context);
       } catch (e) {
+        if (!mounted) {
+          return;
+        }
         _showErrorSnackBar('Error updating CV information: $e');
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }
@@ -79,12 +95,19 @@ class _EditCVFormState extends State<EditCVForm> {
 
     try {
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
+      final canLaunch = await canLaunchUrl(uri);
+      if (!mounted) {
+        return;
+      }
+      if (canLaunch) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         _showErrorSnackBar('Could not launch CV link. Please check the URL.');
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       _showErrorSnackBar('Invalid URL format');
     }
   }

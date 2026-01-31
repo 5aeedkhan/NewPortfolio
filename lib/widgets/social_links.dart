@@ -66,22 +66,28 @@ class SocialLinks extends StatelessWidget {
         icon: Icon(icon, color: Colors.white, size: 28),
         onPressed: () async {
           final uri = Uri.parse(finalUrl);
-          print('Attempting to launch link: $finalUrl');
+          debugPrint('Attempting to launch link: $finalUrl');
           if (await canLaunchUrl(uri)) {
-            print('Link can be launched.');
+            debugPrint('Link can be launched.');
             try {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
-              print('Link launched successfully.');
+              debugPrint('Link launched successfully.');
             } catch (e) {
-              print('Error launching link: $e');
+              debugPrint('Error launching link: $e');
+              if (!context.mounted) {
+                return;
+              }
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Could not launch link: ${e.toString()}')),
               );
             }
           } else {
-            print('Link cannot be launched.');
+            debugPrint('Link cannot be launched.');
+            if (!context.mounted) {
+              return;
+            }
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Could not launch link.')),
+              const SnackBar(content: Text('Could not launch link.')),
             );
           }
         },

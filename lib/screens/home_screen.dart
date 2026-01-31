@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:portfolio/widgets/social_links.dart';
-import 'package:portfolio/widgets/about_section.dart';
 import 'package:portfolio/widgets/projects_section.dart';
-import 'package:portfolio/widgets/skills_section.dart';
 import 'package:portfolio/widgets/dynamic_social_links.dart';
 import 'package:portfolio/widgets/dynamic_about_section.dart';
 import 'package:portfolio/widgets/dynamic_skills_section.dart';
@@ -23,16 +20,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final PortfolioService _portfolioService = PortfolioService();
-  
+
   // Profile data
   String _profileName = 'Muhammad Saeed Khan';
   String _profileTitle = 'Mobile App Developer';
-  String _profileImageUrl = 'https://i.ibb.co/P7rHjyV/Whats-App-Image-2025-05-16-at-9-39-19-AM.jpg';
+  String _profileImageUrl =
+      'https://i.ibb.co/P7rHjyV/Whats-App-Image-2025-05-16-at-9-39-19-AM.jpg';
 
   @override
   void initState() {
     super.initState();
     _loadProfileData();
+    _trackVisit();
   }
 
   Future<void> _loadProfileData() async {
@@ -46,8 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error loading profile data: $e');
+      debugPrint('Error loading profile data: $e');
     }
+  }
+
+  Future<void> _trackVisit() async {
+    await _portfolioService.trackVisit();
   }
 
   Widget _buildAppBarButton(
@@ -59,11 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -77,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             gradient: LinearGradient(
               colors: [
                 color,
-                color.withOpacity(0.8),
+                color.withValues(alpha: 0.8),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
@@ -102,11 +105,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -121,12 +124,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   gradient: LinearGradient(
                     colors: [
                       Theme.of(context).primaryColor,
-                      Theme.of(context).primaryColor.withOpacity(0.8),
+                      Theme.of(context).primaryColor.withValues(alpha: 0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.person,
                   color: Colors.white,
                   size: 20,
@@ -153,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.white.withOpacity(0.8),
+                Colors.white.withValues(alpha: 0.8),
                 Colors.transparent,
               ],
             ),
@@ -217,7 +220,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Hero Section
             Container(
-              height: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+              height: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top,
               width: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -271,7 +275,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         _profileName,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
-                          fontSize: MediaQuery.of(context).size.width < 600 ? 32 : 40,
+                          fontSize:
+                              MediaQuery.of(context).size.width < 600 ? 32 : 40,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -284,8 +289,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       _profileTitle,
                       style: GoogleFonts.poppins(
-                        fontSize: MediaQuery.of(context).size.width < 600 ? 20 : 24,
-                        color: Colors.white.withOpacity(0.9),
+                        fontSize:
+                            MediaQuery.of(context).size.width < 600 ? 20 : 24,
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ).animate().fadeIn().slideY(begin: 0.3),
 
@@ -299,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Scroll Indicator with optimized animation
                     Icon(
                       Icons.keyboard_arrow_down,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       size: 40,
                     )
                         .animate(

@@ -34,20 +34,24 @@ class _EditProjectFormState extends State<EditProjectForm> {
 
   Uint8List? _selectedImageBytes;
   bool _isLoading = false;
-  String? _uploadError;
   String? _existingImageUrl;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.projectData['title'] ?? '');
-    _descriptionController = TextEditingController(text: widget.projectData['description'] ?? '');
-    _githubUrlController = TextEditingController(text: widget.projectData['githubUrl'] ?? '');
-    _youtubeUrlController = TextEditingController(text: widget.projectData['youtubeUrl'] ?? '');
+    _titleController =
+        TextEditingController(text: widget.projectData['title'] ?? '');
+    _descriptionController =
+        TextEditingController(text: widget.projectData['description'] ?? '');
+    _githubUrlController =
+        TextEditingController(text: widget.projectData['githubUrl'] ?? '');
+    _youtubeUrlController =
+        TextEditingController(text: widget.projectData['youtubeUrl'] ?? '');
     _technologiesController = TextEditingController(
       text: (widget.projectData['technologies'] as List?)?.join(', ') ?? '',
     );
-    _playStoreUrlController = TextEditingController(text: widget.projectData['playStoreUrl'] ?? '');
+    _playStoreUrlController =
+        TextEditingController(text: widget.projectData['playStoreUrl'] ?? '');
     _existingImageUrl = widget.projectData['imageUrl'];
   }
 
@@ -63,10 +67,12 @@ class _EditProjectFormState extends State<EditProjectForm> {
         final bytes = await image.readAsBytes();
         setState(() {
           _selectedImageBytes = bytes;
-          _uploadError = null;
         });
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking image: $e')),
       );
@@ -77,7 +83,6 @@ class _EditProjectFormState extends State<EditProjectForm> {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
-        _uploadError = null;
       });
 
       try {
@@ -91,25 +96,33 @@ class _EditProjectFormState extends State<EditProjectForm> {
           title: _titleController.text,
           description: _descriptionController.text,
           imageUrl: imageUrl,
-          technologies: _technologiesController.text.split(',').map((e) => e.trim()).toList(),
+          technologies: _technologiesController.text
+              .split(',')
+              .map((e) => e.trim())
+              .toList(),
           githubUrl: _githubUrlController.text,
           youtubeUrl: _youtubeUrlController.text,
           playStoreUrl: _playStoreUrlController.text,
         );
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Project updated successfully!')),
-          );
-          Navigator.of(context).pop();
+        if (!mounted) {
+          return;
         }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Project updated successfully!')),
+        );
+        Navigator.of(context).pop();
       } catch (e) {
-        setState(() => _uploadError = e.toString());
+        if (!mounted) {
+          return;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }
@@ -123,7 +136,7 @@ class _EditProjectFormState extends State<EditProjectForm> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -158,22 +171,26 @@ class _EditProjectFormState extends State<EditProjectForm> {
             // Title
             TextFormField(
               controller: _titleController,
-              decoration: _inputDecoration('Title', 'Enter project title', Icons.title),
-              validator: (value) => value!.isEmpty ? 'Please enter a title' : null,
+              decoration:
+                  _inputDecoration('Title', 'Enter project title', Icons.title),
+              validator: (value) =>
+                  value!.isEmpty ? 'Please enter a title' : null,
             ),
             const SizedBox(height: 12),
 
             // Description
             TextFormField(
               controller: _descriptionController,
-              decoration: _inputDecoration('Description', 'Describe your project in detail...', Icons.description),
+              decoration: _inputDecoration('Description',
+                  'Describe your project in detail...', Icons.description),
               maxLines: 6,
               minLines: 3,
               textAlign: TextAlign.start,
               style: GoogleFonts.poppins(
                 height: 1.5,
               ),
-              validator: (value) => value!.isEmpty ? 'Please enter a description' : null,
+              validator: (value) =>
+                  value!.isEmpty ? 'Please enter a description' : null,
             ),
             const SizedBox(height: 12),
 
@@ -188,13 +205,17 @@ class _EditProjectFormState extends State<EditProjectForm> {
                 children: [
                   if (_selectedImageBytes != null)
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: Image.memory(_selectedImageBytes!, height: 150, fit: BoxFit.cover),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(8)),
+                      child: Image.memory(_selectedImageBytes!,
+                          height: 150, fit: BoxFit.cover),
                     )
                   else if (_existingImageUrl != null)
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: Image.network(_existingImageUrl!, height: 150, fit: BoxFit.cover),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(8)),
+                      child: Image.network(_existingImageUrl!,
+                          height: 150, fit: BoxFit.cover),
                     ),
                   Padding(
                     padding: const EdgeInsets.all(8),
@@ -202,7 +223,9 @@ class _EditProjectFormState extends State<EditProjectForm> {
                       onPressed: _isLoading ? null : _pickImage,
                       icon: const Icon(Icons.image, size: 18),
                       label: Text(
-                        _selectedImageBytes == null ? 'Change Image' : 'Replace Image',
+                        _selectedImageBytes == null
+                            ? 'Change Image'
+                            : 'Replace Image',
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),
@@ -215,28 +238,32 @@ class _EditProjectFormState extends State<EditProjectForm> {
             // Technologies
             TextFormField(
               controller: _technologiesController,
-              decoration: _inputDecoration('Technologies', 'Flutter, Firebase, Dart', Icons.code),
+              decoration: _inputDecoration(
+                  'Technologies', 'Flutter, Firebase, Dart', Icons.code),
             ),
             const SizedBox(height: 12),
 
             // Playstore
             TextFormField(
               controller: _playStoreUrlController,
-              decoration: _inputDecoration('Playstore URL', 'https://play.google.com/..', Icons.link),
+              decoration: _inputDecoration(
+                  'Playstore URL', 'https://play.google.com/..', Icons.link),
             ),
             const SizedBox(height: 12),
 
             // GitHub
             TextFormField(
               controller: _githubUrlController,
-              decoration: _inputDecoration('GitHub URL', 'https://github.com/..', Icons.code),
+              decoration: _inputDecoration(
+                  'GitHub URL', 'https://github.com/..', Icons.code),
             ),
             const SizedBox(height: 12),
 
             // YouTube
             TextFormField(
               controller: _youtubeUrlController,
-              decoration: _inputDecoration('YouTube URL', 'https://youtube.com/..', Icons.play_circle_outline),
+              decoration: _inputDecoration('YouTube URL',
+                  'https://youtube.com/..', Icons.play_circle_outline),
             ),
             const SizedBox(height: 16),
 
@@ -247,14 +274,16 @@ class _EditProjectFormState extends State<EditProjectForm> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: _isLoading
                   ? const CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     )
-                  : Text('Update Project', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                  : Text('Update Project',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
             ),
           ],
         ),

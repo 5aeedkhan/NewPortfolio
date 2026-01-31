@@ -28,12 +28,13 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = true);
 
       try {
-        print('Attempting to sign in with email: ${_emailController.text}');
+        debugPrint(
+            'Attempting to sign in with email: ${_emailController.text}');
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-        print('Sign in successful');
+        debugPrint('Sign in successful');
 
         if (mounted) {
           Navigator.of(context).pop(); // Close the login dialog
@@ -41,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (e) {
         String message = 'An error occurred';
         if (e is FirebaseAuthException) {
-          print('Firebase Auth Error: ${e.code} - ${e.message}');
+          debugPrint('Firebase Auth Error: ${e.code} - ${e.message}');
           switch (e.code) {
             case 'user-not-found':
               message = 'No user found with this email';
@@ -62,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
               message = 'Error: ${e.message}';
           }
         } else {
-          print('Unknown error: $e');
+          debugPrint('Unknown error: $e');
         }
 
         if (mounted) {
@@ -94,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -213,7 +214,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                   elevation: 3,
-                  shadowColor: Theme.of(context).primaryColor.withOpacity(0.5),
+                  shadowColor:
+                      Theme.of(context).primaryColor.withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
