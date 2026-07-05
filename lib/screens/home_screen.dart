@@ -227,13 +227,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 _buildHeroSection(isMobile, screenHeight),
                 Container(
                   key: _aboutKey,
-                  child: const DynamicAboutSection(),
+                  child: DynamicAboutSection(
+                    scrollController: _scrollController,
+                  ),
                 ),
                 Container(
                   key: _skillsKey,
-                  child: const DynamicSkillsSection(),
+                  child: DynamicSkillsSection(
+                    scrollController: _scrollController,
+                  ),
                 ),
-                const ExperienceSection(),
+                ExperienceSection(
+                  scrollController: _scrollController,
+                ),
                 Container(
                   key: _projectsKey,
                   child: const ProjectsSection(),
@@ -600,6 +606,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             AnimatedCounter(
               target: stat['value'] as int,
               suffix: stat['suffix'] as String,
+              scrollController: _scrollController,
               style: GoogleFonts.poppins(
                 fontSize: isMobile ? 22 : 32,
                 fontWeight: FontWeight.bold,

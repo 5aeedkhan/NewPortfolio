@@ -21,7 +21,8 @@ class SkillCategory {
 }
 
 class DynamicSkillsSection extends StatefulWidget {
-  const DynamicSkillsSection({super.key});
+  final ScrollController? scrollController;
+  const DynamicSkillsSection({super.key, this.scrollController});
 
   @override
   State<DynamicSkillsSection> createState() => _DynamicSkillsSectionState();
@@ -216,7 +217,10 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section heading with gradient text
-          ScrollReveal(child: _buildSectionHeading(isMobile)),
+          ScrollReveal(
+            scrollController: widget.scrollController,
+            child: _buildSectionHeading(isMobile),
+          ),
 
           SizedBox(height: isMobile ? 24 : 40),
 

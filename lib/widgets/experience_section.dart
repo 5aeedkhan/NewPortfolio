@@ -25,7 +25,8 @@ class ExperienceItem {
 }
 
 class ExperienceSection extends StatelessWidget {
-  const ExperienceSection({super.key});
+  final ScrollController? scrollController;
+  const ExperienceSection({super.key, this.scrollController});
 
   static const List<ExperienceItem> _experiences = [
     ExperienceItem(
@@ -97,6 +98,7 @@ class ExperienceSection extends StatelessWidget {
         children: [
           // Section heading
           ScrollReveal(
+            scrollController: scrollController,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -150,6 +152,7 @@ class ExperienceSection extends StatelessWidget {
         final isLast = index == _experiences.length - 1;
 
         return ScrollReveal(
+          scrollController: scrollController,
           delay: Duration(milliseconds: index * 150),
           child: Padding(
             padding: EdgeInsets.only(bottom: isLast ? 0 : 32),

@@ -8,7 +8,8 @@ import 'package:portfolio/theme/app_theme.dart';
 import 'package:portfolio/widgets/scroll_reveal.dart';
 
 class DynamicAboutSection extends StatefulWidget {
-  const DynamicAboutSection({super.key});
+  final ScrollController? scrollController;
+  const DynamicAboutSection({super.key, this.scrollController});
 
   @override
   State<DynamicAboutSection> createState() => _DynamicAboutSectionState();
@@ -112,12 +113,16 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section heading with gradient text
-          ScrollReveal(child: _buildSectionHeading(isMobile)),
+          ScrollReveal(
+            scrollController: widget.scrollController,
+            child: _buildSectionHeading(isMobile),
+          ),
 
           SizedBox(height: isMobile ? 32 : 48),
 
           // Professional Summary Card
           ScrollReveal(
+            scrollController: widget.scrollController,
             delay: 150.ms,
             child: _buildSummaryCard(isMobile, isTablet),
           ),
@@ -126,6 +131,7 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
 
           // View Full CV Button
           ScrollReveal(
+            scrollController: widget.scrollController,
             delay: 300.ms,
             child: Center(child: _buildCvButton()),
           ),
