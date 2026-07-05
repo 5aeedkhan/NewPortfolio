@@ -193,13 +193,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<void> _loadProfileData() async {
     try {
       final data = await _portfolioService.getProfileData();
+      debugPrint('Profile data loaded: $data');
       if (data != null) {
+        var imageUrl = data['profileImageUrl'] ?? '';
+        // Normalize URL: ensure https://
+        if (imageUrl.isNotEmpty && imageUrl.startsWith('http://')) {
+          imageUrl = imageUrl.replaceFirst('http://', 'https://');
+        }
+        debugPrint('Profile image URL: $imageUrl');
         setState(() {
           _name = data['name'] ?? 'Muhammad Saeed Khan';
-          _profileImageUrl = data['profileImageUrl'] ?? '';
+          _profileImageUrl = imageUrl;
           _isLoadingProfile = false;
         });
       } else {
+        debugPrint('No profile data found in Firestore');
         setState(() => _isLoadingProfile = false);
       }
     } catch (e) {
@@ -485,8 +493,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
         children: [
           // Profile image with neon ring
           _buildProfileImage(imageSize, isMobile),
@@ -582,7 +592,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               .animate()
               .fadeIn(duration: 600.ms, delay: 800.ms)
               .slideY(begin: 0.3),
-        ],
+          ],
+        ),
       ),
     );
   }
