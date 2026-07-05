@@ -15,6 +15,7 @@ class NavBar extends StatelessWidget {
   final GlobalKey contactKey;
   final int activeIndex;
   final double scrollProgress;
+  final VoidCallback? onAdminPanelClosed;
 
   const NavBar({
     super.key,
@@ -26,6 +27,7 @@ class NavBar extends StatelessWidget {
     required this.contactKey,
     required this.activeIndex,
     this.scrollProgress = 0,
+    this.onAdminPanelClosed,
   });
 
   void _scrollToKey(GlobalKey key) {
@@ -305,11 +307,13 @@ class NavBar extends StatelessWidget {
                 context,
                 Icons.admin_panel_settings,
                 'Admin',
-                () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const AdminPanel(),
-                  ),
-                ),
+                () => Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                      builder: (context) => const AdminPanel(),
+                    ),
+                  )
+                  .then((_) => onAdminPanelClosed?.call()),
                 AppTheme.neonPurple,
                 isMobile,
               ),

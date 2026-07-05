@@ -191,6 +191,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _loadProfileData() async {
+    setState(() => _isLoadingProfile = true);
     try {
       final data = await _portfolioService.getProfileData();
       debugPrint('Profile data loaded: $data');
@@ -270,6 +271,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             contactKey: _contactKey,
             activeIndex: _activeSection,
             scrollProgress: _scrollProgress,
+            onAdminPanelClosed: _loadProfileData,
           ),
 
           // Scroll-to-top button
@@ -685,23 +687,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   ),
                 ),
                 child: ClipOval(
-                  child: _isLoadingProfile
-                      ? ShimmerProfilePlaceholder(size: size - 8)
-                      : (_profileImageUrl.isNotEmpty
-                          ? Image.network(
-                              _profileImageUrl,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
-                                return ShimmerProfilePlaceholder(size: size - 8);
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                debugPrint('Profile image load error: $error');
-                                debugPrint('Image URL: $_profileImageUrl');
-                                return _buildDefaultAvatar(size - 8);
-                              },
-                            )
-                          : _buildDefaultAvatar(size - 8)),
+                  child: SizedBox(
+                    width: size - 8,
+                    height: size - 8,
+                    child: _isLoadingProfile
+                        ? ShimmerProfilePlaceholder(size: size - 8)
+                        : (_profileImageUrl.isNotEmpty
+                            ? Image.network(
+                                _profileImageUrl,
+                                fit: BoxFit.cover,
+                                width: size - 8,
+                                height: size - 8,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return ShimmerProfilePlaceholder(size: size - 8);
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  debugPrint('Profile image load error: $error');
+                                  debugPrint('Image URL: $_profileImageUrl');
+                                  return _buildDefaultAvatar(size - 8);
+                                },
+                              )
+                            : _buildDefaultAvatar(size - 8)),
+                  ),
                 ),
               ),
             ),
