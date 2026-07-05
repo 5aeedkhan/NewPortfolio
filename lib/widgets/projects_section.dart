@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -6,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:portfolio/widgets/edit_project_form.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:portfolio/theme/app_theme.dart';
 import 'add_project_form.dart';
 
 class ProjectsSection extends StatelessWidget {
@@ -18,17 +20,16 @@ class ProjectsSection extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: 30,
-        horizontal: isMobile ? 12 : 16,
+        vertical: 60,
+        horizontal: isMobile ? 16 : 48,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
-            Colors.white,
-            Colors.blue.shade50,
-            Colors.white,
+            AppTheme.bgDark,
+            AppTheme.bgDarkest,
           ],
         ),
       ),
@@ -46,18 +47,23 @@ class ProjectsSection extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Projects',
-                          style: GoogleFonts.poppins(
-                            fontSize: isMobile ? 22 : 26,
-                            fontWeight: FontWeight.bold,
+                        ShaderMask(
+                          shaderCallback: (bounds) =>
+                              AppTheme.textGradient.createShader(bounds),
+                          child: Text(
+                            'Projects',
+                            style: GoogleFonts.poppins(
+                              fontSize: isMobile ? 26 : 38,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ).animate().fadeIn().slideX(),
                         Text(
                           'Scroll each card for more info',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.inter(
                               fontSize: isMobile ? 10 : 12,
-                              color: Colors.grey[900]),
+                              color: AppTheme.textMuted),
                         ).animate().fadeIn().slideX(),
                         StreamBuilder<User?>(
                           stream: FirebaseAuth.instance.authStateChanges(),
@@ -81,17 +87,16 @@ class ProjectsSection extends StatelessWidget {
                                               0.85,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: AppTheme.bgCard,
                                           borderRadius:
                                               BorderRadius.circular(20),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.1),
-                                              blurRadius: 20,
-                                              offset: const Offset(0, 10),
-                                            ),
-                                          ],
+                                          border: Border.all(
+                                            color: AppTheme.glassBorder,
+                                          ),
+                                          boxShadow: AppTheme.neonGlow(
+                                            color: AppTheme.neonCyan,
+                                            blurRadius: 20,
+                                          ),
                                         ),
                                         child: const SingleChildScrollView(
                                           padding: EdgeInsets.all(20),
@@ -129,19 +134,24 @@ class ProjectsSection extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Projects',
-                          style: GoogleFonts.poppins(
-                            fontSize: isMobile ? 20 : 24,
-                            fontWeight: FontWeight.bold,
+                        ShaderMask(
+                          shaderCallback: (bounds) =>
+                              AppTheme.textGradient.createShader(bounds),
+                          child: Text(
+                            'Projects',
+                            style: GoogleFonts.poppins(
+                              fontSize: isMobile ? 24 : 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ).animate().fadeIn().slideX(),
                         const SizedBox(height: 8),
                         Text(
                           'Scroll each card for more info',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.inter(
                               fontSize: isMobile ? 9 : 11,
-                              color: Colors.grey[900]),
+                              color: AppTheme.textMuted),
                         ).animate().fadeIn().slideX(),
                         const SizedBox(height: 8),
                         StreamBuilder<User?>(
@@ -168,17 +178,16 @@ class ProjectsSection extends StatelessWidget {
                                                 0.85,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.white,
+                                            color: AppTheme.bgCard,
                                             borderRadius:
                                                 BorderRadius.circular(20),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.1),
-                                                blurRadius: 20,
-                                                offset: const Offset(0, 10),
-                                              ),
-                                            ],
+                                            border: Border.all(
+                                              color: AppTheme.glassBorder,
+                                            ),
+                                            boxShadow: AppTheme.neonGlow(
+                                              color: AppTheme.neonCyan,
+                                              blurRadius: 20,
+                                            ),
                                           ),
                                           child: const SingleChildScrollView(
                                             padding: EdgeInsets.all(20),
@@ -226,13 +235,18 @@ class ProjectsSection extends StatelessWidget {
                 return Center(
                   child: Column(
                     children: [
-                      const CircularProgressIndicator(),
+                      CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppTheme.neonCyan.withValues(alpha: 0.5),
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'Loading projects...',
-                        style: GoogleFonts.poppins(
+                        style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: AppTheme.textMuted,
                         ),
                       ),
                     ],
@@ -247,9 +261,9 @@ class ProjectsSection extends StatelessWidget {
                     children: [
                       Text(
                         'Error: ${snapshot.error}',
-                        style: GoogleFonts.poppins(
+                        style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: Colors.red[400],
+                          color: AppTheme.neonPink,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -283,9 +297,9 @@ class ProjectsSection extends StatelessWidget {
                 return Center(
                   child: Text(
                     'No projects available',
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: AppTheme.textMuted,
                     ),
                   ),
                 ).animate().fadeIn().scale();
@@ -434,31 +448,24 @@ class _ProjectCardState extends State<ProjectCard> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.glassBg,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: isHovered
-                    ? Colors.black.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.1),
-                blurRadius: isHovered ? 12 : 8,
-                offset: const Offset(0, 4),
-              ),
-              if (isPulsing)
-                BoxShadow(
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.4),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-            ],
             border: Border.all(
               color: isPulsing
-                  ? Theme.of(context).primaryColor.withValues(alpha: 0.6)
+                  ? AppTheme.neonCyan.withValues(alpha: 0.6)
                   : isHovered
-                      ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
-                      : Colors.transparent,
-              width: isPulsing ? 3 : 2,
+                      ? AppTheme.neonCyan.withValues(alpha: 0.4)
+                      : AppTheme.glassBorder,
+              width: isPulsing ? 2 : 1.5,
             ),
+            boxShadow: [
+              if (isHovered || isPulsing)
+                BoxShadow(
+                  color: AppTheme.neonCyan.withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 4),
+                ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,7 +478,7 @@ class _ProjectCardState extends State<ProjectCard> {
                   decoration: BoxDecoration(
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(16)),
-                    color: Colors.grey[100],
+                    color: AppTheme.bgElevated,
                   ),
                   child: ClipRRect(
                     borderRadius:
@@ -481,25 +488,25 @@ class _ProjectCardState extends State<ProjectCard> {
                             imageUrl: sanitizedUrl,
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(
-                              color: Colors.grey[200],
+                              color: AppTheme.bgElevated,
                               child: const Center(
                                 child:
                                     CircularProgressIndicator(strokeWidth: 2),
                               ),
                             ),
                             errorWidget: (context, url, error) => Container(
-                              color: Colors.grey[300],
+                              color: AppTheme.bgElevated,
                               child: const Center(
                                 child: Icon(Icons.error_outline,
-                                    color: Colors.red),
+                                    color: AppTheme.neonPink),
                               ),
                             ),
                           )
                         : Container(
-                            color: Colors.grey[300],
+                            color: AppTheme.bgElevated,
                             child: const Center(
                               child: Icon(Icons.image_not_supported,
-                                  color: Colors.grey),
+                                  color: AppTheme.textMuted),
                             ),
                           ),
                   ),
@@ -522,7 +529,7 @@ class _ProjectCardState extends State<ProjectCard> {
                           style: GoogleFonts.poppins(
                             fontSize: isMobile ? 12 : 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: AppTheme.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -537,9 +544,7 @@ class _ProjectCardState extends State<ProjectCard> {
                             builder: (context, value, child) {
                               return Icon(
                                 Icons.touch_app,
-                                color: Theme.of(context)
-                                    .primaryColor
-                                    .withValues(alpha: 0.6),
+                                color: AppTheme.neonCyan.withValues(alpha: 0.6),
                                 size: isMobile ? 22 : 26,
                               )
                                   .animate(
@@ -707,15 +712,13 @@ class _ProjectCardState extends State<ProjectCard> {
             maxHeight: MediaQuery.of(context).size.height * 0.85,
           ),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.bgCard,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+            border: Border.all(color: AppTheme.glassBorder),
+            boxShadow: AppTheme.neonGlow(
+              color: AppTheme.neonCyan,
+              blurRadius: 20,
+            ),
           ),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -746,19 +749,22 @@ class _ProjectCardState extends State<ProjectCard> {
             'Delete Project',
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
             ),
           ),
           content: Text(
             'Are you sure you want to delete this project?',
-            style: GoogleFonts.poppins(),
+            style: GoogleFonts.inter(
+              color: AppTheme.textSecondary,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: Text(
                 'Cancel',
-                style: GoogleFonts.poppins(
-                  color: Colors.grey[600],
+                style: GoogleFonts.inter(
+                  color: AppTheme.textSecondary,
                 ),
               ),
             ),
@@ -769,7 +775,7 @@ class _ProjectCardState extends State<ProjectCard> {
               ),
               child: Text(
                 'Delete',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -791,12 +797,15 @@ class _ProjectCardState extends State<ProjectCard> {
             SnackBar(
               content: Text(
                 'Project deleted successfully',
-                style: GoogleFonts.poppins(),
+                style: GoogleFonts.inter(color: AppTheme.textPrimary),
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: AppTheme.bgCardLight,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
+                side: BorderSide(
+                  color: AppTheme.neonCyan.withValues(alpha: 0.3),
+                ),
               ),
             ),
           );
@@ -807,12 +816,15 @@ class _ProjectCardState extends State<ProjectCard> {
             SnackBar(
               content: Text(
                 'Error deleting project: $e',
-                style: GoogleFonts.poppins(),
+                style: GoogleFonts.inter(color: AppTheme.textPrimary),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.bgCardLight,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
+                side: BorderSide(
+                  color: AppTheme.neonPink.withValues(alpha: 0.3),
+                ),
               ),
             ),
           );
@@ -873,11 +885,12 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
           maxHeight: screenHeight * 0.85,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.bgCard,
           borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppTheme.glassBorder),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: AppTheme.neonCyan.withValues(alpha: 0.2),
               blurRadius: 30,
               offset: const Offset(0, 15),
             ),
@@ -936,14 +949,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withValues(alpha: 0.8),
-          ],
-        ),
+        gradient: AppTheme.neonLinearGradient(),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Row(
@@ -1034,13 +1040,13 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.grey[100]!,
-            Colors.grey[200]!,
+            AppTheme.bgElevated,
+            AppTheme.bgCardLight,
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: AppTheme.neonCyan.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -1057,15 +1063,15 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.grey[200]!,
-                  Colors.grey[300]!,
+                  AppTheme.bgElevated,
+                  AppTheme.bgCardLight,
                 ],
               ),
             ),
             child: const Center(
               child: CircularProgressIndicator(
                 strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.neonCyan),
               ),
             ),
           ),
@@ -1075,13 +1081,13 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.grey[300]!,
-                  Colors.grey[400]!,
+                  AppTheme.bgElevated,
+                  AppTheme.bgCardLight,
                 ],
               ),
             ),
             child: const Center(
-              child: Icon(Icons.error_outline, color: Colors.red, size: 40),
+              child: Icon(Icons.error_outline, color: AppTheme.neonPink, size: 40),
             ),
           ),
         ),
@@ -1095,7 +1101,7 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
       style: GoogleFonts.poppins(
         fontSize: isMobile ? 18 : 20,
         fontWeight: FontWeight.bold,
-        color: Colors.black87,
+        color: AppTheme.textPrimary,
       ),
     ).animate().fadeIn().slideY(begin: 0.3, delay: 300.milliseconds);
   }
@@ -1104,15 +1110,15 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: AppTheme.bgElevated,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: AppTheme.glassBorder),
       ),
       child: Text(
         widget.description,
-        style: GoogleFonts.poppins(
+        style: GoogleFonts.inter(
           fontSize: isMobile ? 14 : 16,
-          color: Colors.black54,
+          color: AppTheme.textSecondary,
           height: 1.6,
         ),
       ),
@@ -1127,24 +1133,17 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                Theme.of(context).primaryColor.withValues(alpha: 0.05),
-              ],
-            ),
+            color: AppTheme.neonCyan.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+              color: AppTheme.neonCyan.withValues(alpha: 0.3),
             ),
           ),
           child: Text(
             tech,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.inter(
               fontSize: isMobile ? 12 : 14,
-              color: Theme.of(context).primaryColor,
+              color: AppTheme.neonCyan,
               fontWeight: FontWeight.w600,
             ),
           ),

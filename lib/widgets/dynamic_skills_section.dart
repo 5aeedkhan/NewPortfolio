@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:portfolio/services/portfolio_service.dart';
+import 'package:portfolio/theme/app_theme.dart';
 
 class SkillCategory {
   final String title;
@@ -178,46 +180,45 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
           vertical: 30,
           horizontal: isMobile ? 16 : 24,
         ),
-        child: const Center(child: CircularProgressIndicator()),
+        color: AppTheme.bgDark,
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              AppTheme.neonCyan.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
       );
     }
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: 30,
+        vertical: 60,
         horizontal: isMobile
             ? 16
             : isTablet
-                ? 24
-                : 32,
+                ? 32
+                : 48,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
-            Colors.white,
-            Colors.blue.shade50,
-            Colors.white,
+            AppTheme.bgDarkest,
+            AppTheme.bgDark,
           ],
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Skills & Competencies',
-            style: GoogleFonts.poppins(
-              fontSize: isMobile
-                  ? 22
-                  : isTablet
-                      ? 26
-                      : 30,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ).animate().fadeIn().slideX(),
-          const SizedBox(height: 24),
+          // Section heading with gradient text
+          _buildSectionHeading(isMobile),
+
+          SizedBox(height: isMobile ? 24 : 40),
+
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -247,6 +248,35 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSectionHeading(bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShaderMask(
+          shaderCallback: (bounds) =>
+              AppTheme.textGradient.createShader(bounds),
+          child: Text(
+            'Skills & Competencies',
+            style: GoogleFonts.poppins(
+              fontSize: isMobile ? 26 : 38,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ).animate().fadeIn().slideX(),
+        const SizedBox(height: 12),
+        Container(
+          width: 60,
+          height: 3,
+          decoration: BoxDecoration(
+            gradient: AppTheme.neonLinearGradient(),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ).animate().fadeIn(delay: 200.ms).scaleX(begin: 0),
+      ],
     );
   }
 }
@@ -283,24 +313,29 @@ class _SkillCardState extends State<SkillCard> {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: Container(
-          width: isMobile
-              ? double.infinity
-              : isTablet
-                  ? 500
-                  : 600,
-          padding: EdgeInsets.all(isMobile ? 20 : 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: widget.color.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              width: isMobile
+                  ? double.infinity
+                  : isTablet
+                      ? 500
+                      : 600,
+              padding: EdgeInsets.all(isMobile ? 20 : 24),
+              decoration: BoxDecoration(
+                color: AppTheme.glassBg,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.glassBorder),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.color.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-            ],
-          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,14 +365,14 @@ class _SkillCardState extends State<SkillCard> {
                                 ? 22
                                 : 24,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
-                    color: Colors.grey[600],
+                    color: AppTheme.textSecondary,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -363,13 +398,13 @@ class _SkillCardState extends State<SkillCard> {
                                   Expanded(
                                     child: Text(
                                       skill,
-                                      style: GoogleFonts.poppins(
+                                      style: GoogleFonts.inter(
                                         fontSize: isMobile
                                             ? 14
                                             : isTablet
                                                 ? 15
                                                 : 16,
-                                        color: Colors.grey[800],
+                                        color: AppTheme.textSecondary,
                                         height: 1.5,
                                       ),
                                     ),
@@ -382,6 +417,8 @@ class _SkillCardState extends State<SkillCard> {
                 ),
               ),
             ],
+          ),
+            ),
           ),
         ),
       ),
@@ -405,22 +442,27 @@ class _SkillCardState extends State<SkillCard> {
               ..setEntry(3, 2, 0.001)
               ..rotateX(isHovered ? 0.05 : 0)
               ..rotateY(isHovered ? 0.05 : 0),
-            child: Card(
-              elevation: isHovered ? 8 : 4,
-              shadowColor: widget.color.withValues(alpha: 0.3),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: isHovered ? widget.color : Colors.transparent,
-                  width: 2,
-                ),
+            decoration: BoxDecoration(
+              color: AppTheme.glassBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isHovered
+                    ? widget.color.withValues(alpha: 0.5)
+                    : AppTheme.glassBorder,
+                width: 1.5,
               ),
-              child: Container(
+              boxShadow: isHovered
+                  ? [
+                      BoxShadow(
+                        color: widget.color.withValues(alpha: 0.2),
+                        blurRadius: 15,
+                        spreadRadius: 0,
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Container(
                 padding: EdgeInsets.all(isMobile ? 12 : 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -429,8 +471,11 @@ class _SkillCardState extends State<SkillCard> {
                         Container(
                           padding: EdgeInsets.all(isMobile ? 6 : 8),
                           decoration: BoxDecoration(
-                            color: widget.color.withValues(alpha: 0.1),
+                            color: widget.color.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: widget.color.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Icon(
                             widget.icon,
@@ -449,7 +494,7 @@ class _SkillCardState extends State<SkillCard> {
                                       ? 16
                                       : 18,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                         ),
@@ -481,13 +526,13 @@ class _SkillCardState extends State<SkillCard> {
                                 Expanded(
                                   child: Text(
                                     widget.skills[index],
-                                    style: GoogleFonts.poppins(
+                                    style: GoogleFonts.inter(
                                       fontSize: isMobile
                                           ? 11
                                           : isTablet
                                               ? 12
                                               : 13,
-                                      color: Colors.grey[800],
+                                      color: AppTheme.textSecondary,
                                       height: 1.2,
                                     ),
                                     maxLines: 1,
@@ -505,7 +550,7 @@ class _SkillCardState extends State<SkillCard> {
                         padding: EdgeInsets.only(top: isMobile ? 4 : 6),
                         child: Text(
                           'Click to see all ${widget.skills.length} skills',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.inter(
                             fontSize: isMobile ? 10 : 11,
                             color: widget.color,
                             fontStyle: FontStyle.italic,
@@ -515,7 +560,6 @@ class _SkillCardState extends State<SkillCard> {
                   ],
                 ),
               ),
-            ),
           ),
         )
             .animate()
