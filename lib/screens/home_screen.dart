@@ -13,6 +13,7 @@ import 'package:portfolio/widgets/dynamic_social_links.dart';
 import 'package:portfolio/widgets/experience_section.dart';
 import 'package:portfolio/widgets/scroll_reveal.dart';
 import 'package:portfolio/services/portfolio_service.dart';
+import 'package:portfolio/services/project_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -82,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _scrollController.addListener(_onScroll);
     _loadProfileData();
     _startTypewriter();
+    ProjectService().ensureProjectOrder();
   }
 
   void _startTypewriter() {

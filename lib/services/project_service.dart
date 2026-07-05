@@ -7,6 +7,24 @@ class ProjectService {
 
   final Logger _logger = Logger();
 
+  // Ensure all projects have an 'order' field (migration helper)
+  Future<void> ensureProjectOrder() async {
+    try {
+      final snapshot = await _firestore.collection(_collection).get();
+      final batch = _firestore.batch();
+      int order = 0;
+      for (final doc in snapshot.docs) {
+        if (!doc.data().containsKey('order')) {
+          batch.update(doc.reference, {'order': order});
+        }
+        order++;
+      }
+      await batch.commit();
+    } catch (e) {
+      _logger.e('Error ensuring project order: $e');
+    }
+  }
+
   // Add a new project
   Future<void> addProject({
     required String title,
@@ -16,8 +34,10 @@ class ProjectService {
     required String githubUrl,
     required String youtubeUrl,
     String playStoreUrl = '',
+    String demoUrl = '',
   }) async {
     try {
+      final count = await _firestore.collection(_collection).count().get();
       await _firestore.collection(_collection).add({
         'title': title,
         'description': description,
@@ -26,6 +46,8 @@ class ProjectService {
         'githubUrl': githubUrl,
         'youtubeUrl': youtubeUrl,
         'playStoreUrl': playStoreUrl,
+        'demoUrl': demoUrl,
+        'order': count.count,
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -34,12 +56,52 @@ class ProjectService {
     }
   }
 
-  // Get all projects
+  // Get all projects ordered by 'order' field
   Stream<QuerySnapshot> getProjects() {
     return _firestore
         .collection(_collection)
-        .orderBy('createdAt', descending: true)
+        .orderBy('order', descending: false)
         .snapshots();
+  }
+
+  // Reorder projects - takes list of doc IDs in desired order
+  Future<void> reorderProjects(List<String> projectIds) async {
+    try {
+      final batch = _firestore.batch();
+      for (int i = 0; i < projectIds.length; i++) {
+        batch.update(
+          _firestore.collection(_collection).doc(projectIds[i]),
+          {'order': i},
+        );
+      }
+      await batch.commit();
+    } catch (e) {
+      _logger.e('Error reordering projects: $e');
+      rethrow;
+    }
+  }
+
+  // Move a project up or down in order
+  Future<void> moveProject(String projectId, int direction) async {
+    try {
+      final snapshot = await _firestore
+          .collection(_collection)
+          .orderBy('order', descending: false)
+          .get();
+      final docs = snapshot.docs;
+      int currentIndex = docs.indexWhere((d) => d.id == projectId);
+      if (currentIndex == -1) return;
+      int newIndex = currentIndex + direction;
+      if (newIndex < 0 || newIndex >= docs.length) return;
+
+      final batch = _firestore.batch();
+      batch.update(docs[currentIndex].reference, {'order': newIndex});
+      batch.update(docs[newIndex].reference, {'order': currentIndex});
+      await batch.commit();
+    } catch (e) {
+      _logger.e('Error moving project: $e');
+      rethrow;
+    }
   }
 
   // Delete a project

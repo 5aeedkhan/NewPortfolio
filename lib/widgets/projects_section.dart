@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:portfolio/services/project_service.dart';
 import 'package:portfolio/widgets/edit_project_form.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:portfolio/theme/app_theme.dart';
@@ -219,8 +220,10 @@ class ProjectsSection extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream:
-                FirebaseFirestore.instance.collection('projects').snapshots(),
+            stream: FirebaseFirestore.instance
+                .collection('projects')
+                .orderBy('order', descending: false)
+                .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
@@ -300,10 +303,10 @@ class ProjectsSection extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: isMobile ? 1 : 3,
-                  crossAxisSpacing: isMobile ? 12 : 16,
-                  mainAxisSpacing: isMobile ? 16 : 20,
-                  childAspectRatio: isMobile ? 0.8 : 0.8,
+                  crossAxisCount: isMobile ? 1 : (screenWidth < 1100 ? 2 : 3),
+                  crossAxisSpacing: isMobile ? 12 : 20,
+                  mainAxisSpacing: isMobile ? 16 : 24,
+                  childAspectRatio: isMobile ? 0.85 : 0.78,
                 ),
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
@@ -321,6 +324,8 @@ class ProjectsSection extends StatelessWidget {
                     demoUrl: data['demoUrl'] ?? '',
                     projectId: doc.id,
                     isAdmin: true,
+                    projectIndex: index,
+                    totalProjects: snapshot.data!.docs.length,
                   )
                       .animate()
                       .fadeIn(
@@ -352,6 +357,8 @@ class ProjectCard extends StatefulWidget {
   final String demoUrl;
   final String projectId;
   final bool isAdmin;
+  final int projectIndex;
+  final int totalProjects;
 
   const ProjectCard({
     super.key,
@@ -365,6 +372,8 @@ class ProjectCard extends StatefulWidget {
     required this.projectId,
     required this.playStoreUrl,
     required this.isAdmin,
+    this.projectIndex = 0,
+    this.totalProjects = 0,
   });
 
   @override
@@ -375,6 +384,7 @@ class _ProjectCardState extends State<ProjectCard> {
   bool isHovered = false;
   bool isPulsing = false;
   bool showGesture = false;
+  final ProjectService _projectService = ProjectService();
 
   void _showProjectDetails() {
     setState(() {
@@ -461,51 +471,194 @@ class _ProjectCardState extends State<ProjectCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Project Image
+              // Project Image with overlay
               Expanded(
                 flex: 6,
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(16)),
-                    color: AppTheme.bgCardLight,
-                  ),
-                  child: ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: _isValidImageUrl(sanitizedUrl)
-                        ? Image.network(
-                            sanitizedUrl,
-                            fit: BoxFit.contain,
-                            loadingBuilder: (context, child, progress) {
-                              if (progress == null) return child;
-                              return Container(
+                child: Stack(
+                  children: [
+                    // Base image container
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.vertical(top: Radius.circular(16)),
+                        color: AppTheme.bgCardLight,
+                      ),
+                      child: ClipRRect(
+                        borderRadius:
+                            const BorderRadius.vertical(top: Radius.circular(16)),
+                        child: _isValidImageUrl(sanitizedUrl)
+                            ? Image.network(
+                                sanitizedUrl,
+                                fit: BoxFit.contain,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Container(
+                                    color: AppTheme.bgCardLight,
+                                    child: const Center(
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  debugPrint('Project image error: $error');
+                                  return Container(
+                                    color: AppTheme.bgCardLight,
+                                    child: const Center(
+                                      child: Icon(Icons.error_outline,
+                                          color: AppTheme.neonPink),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(
                                 color: AppTheme.bgCardLight,
                                 child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: Icon(Icons.image_not_supported,
+                                      color: AppTheme.textMuted),
                                 ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              debugPrint('Project image error: $error');
-                              return Container(
-                                color: AppTheme.bgCardLight,
-                                child: const Center(
-                                  child: Icon(Icons.error_outline,
-                                      color: AppTheme.neonPink),
-                                ),
-                              );
-                            },
-                          )
-                        : Container(
-                            color: AppTheme.bgCardLight,
-                            child: const Center(
-                              child: Icon(Icons.image_not_supported,
-                                  color: AppTheme.textMuted),
+                              ),
+                      ),
+                    ),
+                    // Admin reorder controls (top-left)
+                    if (widget.isAdmin)
+                      Positioned(
+                        top: 6,
+                        left: 6,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppTheme.bgDarkest.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: AppTheme.neonCyan.withValues(alpha: 0.3),
                             ),
                           ),
-                  ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (widget.projectIndex > 0)
+                                InkWell(
+                                  onTap: () => _projectService.moveProject(
+                                      widget.projectId, -1),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Icon(Icons.arrow_upward,
+                                        size: 14, color: AppTheme.neonCyan),
+                                  ),
+                                )
+                              else
+                                const Padding(
+                                  padding: EdgeInsets.all(4),
+                                  child: Icon(Icons.arrow_upward,
+                                      size: 14, color: AppTheme.textMuted),
+                                ),
+                              Container(
+                                width: 1,
+                                height: 14,
+                                color: AppTheme.glassBorder,
+                              ),
+                              if (widget.projectIndex < widget.totalProjects - 1)
+                                InkWell(
+                                  onTap: () => _projectService.moveProject(
+                                      widget.projectId, 1),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Icon(Icons.arrow_downward,
+                                        size: 14, color: AppTheme.neonCyan),
+                                  ),
+                                )
+                              else
+                                const Padding(
+                                  padding: EdgeInsets.all(4),
+                                  child: Icon(Icons.arrow_downward,
+                                      size: 14, color: AppTheme.textMuted),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    // Order badge (top-right, admin only)
+                    if (widget.isAdmin)
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppTheme.neonCyan.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: AppTheme.neonCyan.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Text(
+                            '#${widget.projectIndex + 1}',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.neonCyan,
+                            ),
+                          ),
+                        ),
+                      ),
+                    // Tech tags overlay on hover (bottom)
+                    if (isHovered && widget.technologies.isNotEmpty)
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16)),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppTheme.bgDarkest.withValues(alpha: 0.7),
+                                border: Border(
+                                  top: BorderSide(
+                                    color:
+                                        AppTheme.neonCyan.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                              ),
+                              child: Wrap(
+                                spacing: 4,
+                                runSpacing: 4,
+                                children: widget.technologies
+                                    .take(4)
+                                    .map((tech) => Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.neonCyan
+                                                .withValues(alpha: 0.15),
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                            border: Border.all(
+                                              color: AppTheme.neonCyan
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            tech,
+                                            style: GoogleFonts.inter(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w500,
+                                              color: AppTheme.neonCyan,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               // Project Title and Buttons
