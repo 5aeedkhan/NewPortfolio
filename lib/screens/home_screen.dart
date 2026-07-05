@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:portfolio/theme/app_theme.dart';
 import 'package:portfolio/widgets/nav_bar.dart';
 import 'package:portfolio/widgets/dynamic_about_section.dart';
@@ -36,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _showScrollToTop = false;
   double _scrollProgress = 0;
 
-  String _name = 'Saeed Khan';
+  String _name = 'Muhammad Saeed Khan';
   String _profileImageUrl = '';
   bool _isLoadingProfile = true;
 
@@ -196,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final data = await _portfolioService.getProfileData();
       if (data != null) {
         setState(() {
-          _name = data['name'] ?? 'Saeed Khan';
+          _name = data['name'] ?? 'Muhammad Saeed Khan';
           _profileImageUrl = data['profileImageUrl'] ?? '';
           _isLoadingProfile = false;
         });
@@ -678,13 +677,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   child: _isLoadingProfile
                       ? ShimmerProfilePlaceholder(size: size - 8)
                       : (_profileImageUrl.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: _profileImageUrl,
+                          ? Image.network(
+                              _profileImageUrl,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) =>
-                                  ShimmerProfilePlaceholder(size: size - 8),
-                              errorWidget: (context, url, error) =>
-                                  _buildDefaultAvatar(size - 8),
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return ShimmerProfilePlaceholder(size: size - 8);
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                debugPrint('Profile image load error: $error');
+                                debugPrint('Image URL: $_profileImageUrl');
+                                return _buildDefaultAvatar(size - 8);
+                              },
                             )
                           : _buildDefaultAvatar(size - 8)),
                 ),

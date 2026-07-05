@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:portfolio/widgets/edit_project_form.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:portfolio/theme/app_theme.dart';
@@ -476,23 +475,28 @@ class _ProjectCardState extends State<ProjectCard> {
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(16)),
                     child: _isValidImageUrl(sanitizedUrl)
-                        ? CachedNetworkImage(
-                            imageUrl: sanitizedUrl,
+                        ? Image.network(
+                            sanitizedUrl,
                             fit: BoxFit.contain,
-                            placeholder: (context, url) => Container(
-                              color: AppTheme.bgCardLight,
-                              child: const Center(
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              color: AppTheme.bgCardLight,
-                              child: const Center(
-                                child: Icon(Icons.error_outline,
-                                    color: AppTheme.neonPink),
-                              ),
-                            ),
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return Container(
+                                color: AppTheme.bgCardLight,
+                                child: const Center(
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              debugPrint('Project image error: $error');
+                              return Container(
+                                color: AppTheme.bgCardLight,
+                                child: const Center(
+                                  child: Icon(Icons.error_outline,
+                                      color: AppTheme.neonPink),
+                                ),
+                              );
+                            },
                           )
                         : Container(
                             color: AppTheme.bgCardLight,
@@ -1046,42 +1050,48 @@ class _ProjectDetailDialogState extends State<ProjectDetailDialog> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: CachedNetworkImage(
-          imageUrl: sanitizedUrl,
+        child: Image.network(
+          sanitizedUrl,
           fit: BoxFit.contain,
-          placeholder: (context, url) => Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.bgElevated,
-                  AppTheme.bgCardLight,
-                ],
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) return child;
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.bgElevated,
+                    AppTheme.bgCardLight,
+                  ],
+                ),
               ),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.neonCyan),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.neonCyan),
+                ),
               ),
-            ),
-          ),
-          errorWidget: (context, url, error) => Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppTheme.bgElevated,
-                  AppTheme.bgCardLight,
-                ],
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint('Project detail image error: $error');
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.bgElevated,
+                    AppTheme.bgCardLight,
+                  ],
+                ),
               ),
-            ),
-            child: const Center(
-              child: Icon(Icons.error_outline, color: AppTheme.neonPink, size: 40),
-            ),
-          ),
+              child: const Center(
+                child: Icon(Icons.error_outline, color: AppTheme.neonPink, size: 40),
+              ),
+            );
+          },
         ),
       ),
     ).animate().fadeIn().scale(delay: 200.milliseconds);

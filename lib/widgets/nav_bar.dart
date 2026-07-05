@@ -150,9 +150,9 @@ class NavBar extends StatelessWidget {
                   shaderCallback: (bounds) =>
                       AppTheme.textGradient.createShader(bounds),
                   child: Text(
-                    'Saeed Khan',
+                    'Muhammad Saeed Khan',
                     style: GoogleFonts.poppins(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -237,9 +237,9 @@ class NavBar extends StatelessWidget {
               shaderCallback: (bounds) =>
                   AppTheme.textGradient.createShader(bounds),
               child: Text(
-                'Saeed',
+                'M. Saeed Khan',
                 style: GoogleFonts.poppins(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
