@@ -11,6 +11,8 @@ import 'package:portfolio/widgets/projects_section.dart';
 import 'package:portfolio/widgets/contact_section.dart';
 import 'package:portfolio/widgets/footer.dart';
 import 'package:portfolio/widgets/dynamic_social_links.dart';
+import 'package:portfolio/widgets/experience_section.dart';
+import 'package:portfolio/widgets/scroll_reveal.dart';
 import 'package:portfolio/services/portfolio_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,7 +24,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final PortfolioService _portfolioService = PortfolioService();
-
   final ScrollController _scrollController = ScrollController();
 
   final GlobalKey _heroKey = GlobalKey();
@@ -33,16 +34,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   int _activeSection = 0;
   bool _showScrollToTop = false;
+  double _scrollProgress = 0;
 
-  // Hero data
   String _name = 'Saeed Khan';
-  String _title = 'Flutter Developer';
   String _profileImageUrl = '';
   bool _isLoadingProfile = true;
 
-  // Animated gradient
   late AnimationController _gradientController;
   late AnimationController _orbController;
+  late AnimationController _typewriterController;
+
+  // Typewriter
+  final List<String> _titles = [
+    'Flutter Developer',
+    'UI/UX Enthusiast',
+    'Mobile App Engineer',
+    'Problem Solver',
+  ];
+  int _currentTitleIndex = 0;
+  String _displayedTitle = '';
+  int _charIndex = 0;
+  bool _isDeleting = false;
 
   @override
   void initState() {
@@ -55,22 +67,83 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: 6),
     )..repeat(reverse: true);
+    _typewriterController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    )..addStatusListener(_onTypewriterTick);
 
     _scrollController.addListener(_onScroll);
     _loadProfileData();
+    _startTypewriter();
+  }
+
+  void _startTypewriter() {
+    _charIndex = 0;
+    _displayedTitle = '';
+    _isDeleting = false;
+    _typewriterController.duration =
+        const Duration(milliseconds: 80);
+    _typewriterController.reset();
+    _typewriterController.forward();
+  }
+
+  void _onTypewriterTick(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      final fullText = _titles[_currentTitleIndex];
+
+      if (!_isDeleting) {
+        if (_charIndex < fullText.length) {
+          _charIndex++;
+          _displayedTitle = fullText.substring(0, _charIndex);
+          _typewriterController.reset();
+          _typewriterController.forward();
+        } else {
+          Future.delayed(const Duration(milliseconds: 1800), () {
+            if (mounted) {
+              _isDeleting = true;
+              _typewriterController.duration =
+                  const Duration(milliseconds: 45);
+              _typewriterController.reset();
+              _typewriterController.forward();
+            }
+          });
+        }
+      } else {
+        if (_charIndex > 0) {
+          _charIndex--;
+          _displayedTitle = fullText.substring(0, _charIndex);
+          _typewriterController.reset();
+          _typewriterController.forward();
+        } else {
+          _isDeleting = false;
+          _currentTitleIndex =
+              (_currentTitleIndex + 1) % _titles.length;
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              _typewriterController.duration =
+                  const Duration(milliseconds: 80);
+              _typewriterController.reset();
+              _typewriterController.forward();
+            }
+          });
+        }
+      }
+
+      if (mounted) setState(() {});
+    }
   }
 
   @override
   void dispose() {
     _gradientController.dispose();
     _orbController.dispose();
+    _typewriterController.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
 
   void _onScroll() {
-    // Determine active section
     final sections = [
       _heroKey,
       _aboutKey,
@@ -95,10 +168,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
     }
 
-    // Show/hide scroll-to-top
     final shouldShow = _scrollController.offset > 400;
     if (_showScrollToTop != shouldShow) {
       setState(() => _showScrollToTop = shouldShow);
+    }
+
+    // Scroll progress for nav bar
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    if (maxScroll > 0) {
+      final progress = (_scrollController.offset / maxScroll).clamp(0.0, 1.0);
+      if ((progress - _scrollProgress).abs() > 0.01) {
+        setState(() => _scrollProgress = progress);
+      }
     }
   }
 
@@ -116,20 +197,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       if (data != null) {
         setState(() {
           _name = data['name'] ?? 'Saeed Khan';
-          _title = data['title'] ?? 'Flutter Developer';
           _profileImageUrl = data['profileImageUrl'] ?? '';
           _isLoadingProfile = false;
         });
       } else {
-        setState(() {
-          _isLoadingProfile = false;
-        });
+        setState(() => _isLoadingProfile = false);
       }
     } catch (e) {
       debugPrint('Error loading profile data: $e');
-      setState(() {
-        _isLoadingProfile = false;
-      });
+      setState(() => _isLoadingProfile = false);
     }
   }
 
@@ -148,34 +224,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             controller: _scrollController,
             child: Column(
               children: [
-                // Hero Section
                 _buildHeroSection(isMobile, screenHeight),
-
-                // About Section
                 Container(
                   key: _aboutKey,
                   child: const DynamicAboutSection(),
                 ),
-
-                // Skills Section
                 Container(
                   key: _skillsKey,
                   child: const DynamicSkillsSection(),
                 ),
-
-                // Projects Section
+                const ExperienceSection(),
                 Container(
                   key: _projectsKey,
                   child: const ProjectsSection(),
                 ),
-
-                // Contact Section
                 Container(
                   key: _contactKey,
                   child: const ContactSection(),
                 ),
-
-                // Footer
                 const Footer(),
               ],
             ),
@@ -190,6 +256,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             projectsKey: _projectsKey,
             contactKey: _contactKey,
             activeIndex: _activeSection,
+            scrollProgress: _scrollProgress,
           ),
 
           // Scroll-to-top button
@@ -204,6 +271,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  // ── Hero Section ──
+
   Widget _buildHeroSection(bool isMobile, double screenHeight) {
     return Container(
       key: _heroKey,
@@ -212,7 +281,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         animation: _gradientController,
         builder: (context, child) {
           final value = _gradientController.value;
-          // Shifting gradient colors
           final t = (math.sin(value * 2 * math.pi) + 1) / 2;
 
           return Stack(
@@ -244,7 +312,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
 
-              // Floating neon orbs
+              // Radial glow at center-top
+              Positioned(
+                top: -100,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 400,
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 0.8,
+                      colors: [
+                        AppTheme.neonCyan.withValues(alpha: 0.06),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Floating neon orbs with parallax
               ..._buildFloatingOrbs(isMobile),
 
               // Grid pattern overlay
@@ -276,22 +364,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   List<Widget> _buildFloatingOrbs(bool isMobile) {
     return [
+      // Large cyan orb - top right
       AnimatedBuilder(
         animation: _orbController,
         builder: (context, child) {
           final t = _orbController.value;
+          final scrollOffset =
+              _scrollController.hasClients ? _scrollController.offset : 0.0;
           return Positioned(
-            top: 80 + 30 * t,
+            top: 80 + 30 * t - scrollOffset * 0.3,
             right: isMobile ? 20 : 80,
             child: Container(
-              width: isMobile ? 120 : 200,
-              height: isMobile ? 120 : 200,
+              width: isMobile ? 120 : 220,
+              height: isMobile ? 120 : 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.neonCyan.withValues(alpha: 0.15),
-                    AppTheme.neonCyan.withValues(alpha: 0.05),
+                    AppTheme.neonCyan.withValues(alpha: 0.18),
+                    AppTheme.neonCyan.withValues(alpha: 0.06),
                     Colors.transparent,
                   ],
                 ),
@@ -300,22 +391,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           );
         },
       ),
+      // Purple orb - bottom left
       AnimatedBuilder(
         animation: _orbController,
         builder: (context, child) {
           final t = _orbController.value;
+          final scrollOffset =
+              _scrollController.hasClients ? _scrollController.offset : 0.0;
           return Positioned(
-            bottom: 100 + 40 * (1 - t),
+            bottom: 100 + 40 * (1 - t) + scrollOffset * 0.2,
             left: isMobile ? 10 : 60,
             child: Container(
-              width: isMobile ? 100 : 180,
-              height: isMobile ? 100 : 180,
+              width: isMobile ? 100 : 200,
+              height: isMobile ? 100 : 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.neonPurple.withValues(alpha: 0.12),
-                    AppTheme.neonPurple.withValues(alpha: 0.04),
+                    AppTheme.neonPurple.withValues(alpha: 0.15),
+                    AppTheme.neonPurple.withValues(alpha: 0.05),
                     Colors.transparent,
                   ],
                 ),
@@ -324,22 +418,52 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           );
         },
       ),
+      // Small blue orb - mid left
       AnimatedBuilder(
         animation: _orbController,
         builder: (context, child) {
           final t = _orbController.value;
+          final scrollOffset =
+              _scrollController.hasClients ? _scrollController.offset : 0.0;
           return Positioned(
-            top: 200 + 20 * t,
+            top: 200 + 20 * t - scrollOffset * 0.5,
             left: isMobile ? 40 : 200,
             child: Container(
-              width: isMobile ? 60 : 100,
-              height: isMobile ? 60 : 100,
+              width: isMobile ? 60 : 120,
+              height: isMobile ? 60 : 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.neonBlue.withValues(alpha: 0.1),
-                    AppTheme.neonBlue.withValues(alpha: 0.03),
+                    AppTheme.neonBlue.withValues(alpha: 0.12),
+                    AppTheme.neonBlue.withValues(alpha: 0.04),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      // Pink orb - far right mid
+      AnimatedBuilder(
+        animation: _orbController,
+        builder: (context, child) {
+          final t = _orbController.value;
+          final scrollOffset =
+              _scrollController.hasClients ? _scrollController.offset : 0.0;
+          return Positioned(
+            top: 350 + 25 * (1 - t) - scrollOffset * 0.4,
+            right: isMobile ? 30 : 150,
+            child: Container(
+              width: isMobile ? 50 : 90,
+              height: isMobile ? 50 : 90,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.neonPink.withValues(alpha: 0.1),
+                    AppTheme.neonPink.withValues(alpha: 0.03),
                     Colors.transparent,
                   ],
                 ),
@@ -362,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // Profile image with neon ring
           _buildProfileImage(imageSize, isMobile),
 
-          SizedBox(height: isMobile ? 24 : 32),
+          SizedBox(height: isMobile ? 20 : 28),
 
           // Greeting
           Text(
@@ -374,7 +498,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
 
-          SizedBox(height: isMobile ? 8 : 12),
+          SizedBox(height: isMobile ? 6 : 10),
 
           // Name with gradient text
           ShaderMask(
@@ -396,7 +520,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
           SizedBox(height: isMobile ? 8 : 12),
 
-          // Title with typewriter-like effect
+          // Typewriter title
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -407,29 +531,95 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 width: 1,
               ),
             ),
-            child: Text(
-              _title,
-              style: GoogleFonts.inter(
-                fontSize: isMobile ? 16 : 22,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.neonCyan,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _displayedTitle,
+                  style: GoogleFonts.inter(
+                    fontSize: isMobile ? 15 : 20,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.neonCyan,
+                  ),
+                ),
+                // Blinking cursor
+                AnimatedBuilder(
+                  animation: _gradientController,
+                  builder: (context, child) {
+                    final visible =
+                        (_gradientController.value * 2).floor() % 2 == 0;
+                    return Container(
+                      width: 2,
+                      height: isMobile ? 18 : 24,
+                      margin: const EdgeInsets.only(left: 4),
+                      color: visible
+                          ? AppTheme.neonCyan
+                          : Colors.transparent,
+                    );
+                  },
+                ),
+              ],
             ),
           )
               .animate()
               .fadeIn(duration: 600.ms, delay: 400.ms)
               .slideY(begin: 0.3),
 
+          SizedBox(height: isMobile ? 24 : 32),
+
+          // Animated stats row
+          _buildStatsRow(isMobile),
+
           SizedBox(height: isMobile ? 20 : 28),
 
           // Social links
           const DynamicSocialLinks()
               .animate()
-              .fadeIn(duration: 600.ms, delay: 600.ms)
+              .fadeIn(duration: 600.ms, delay: 800.ms)
               .slideY(begin: 0.3),
         ],
       ),
     );
+  }
+
+  Widget _buildStatsRow(bool isMobile) {
+    final stats = [
+      {'value': 3, 'suffix': '+', 'label': 'Years Experience'},
+      {'value': 20, 'suffix': '+', 'label': 'Projects Done'},
+      {'value': 15, 'suffix': '+', 'label': 'Happy Clients'},
+      {'value': 5, 'suffix': '', 'label': 'Tech Stacks'},
+    ];
+
+    return Wrap(
+      spacing: isMobile ? 12 : 24,
+      runSpacing: 12,
+      alignment: WrapAlignment.center,
+      children: stats.map((stat) {
+        return Column(
+          children: [
+            AnimatedCounter(
+              target: stat['value'] as int,
+              suffix: stat['suffix'] as String,
+              style: GoogleFonts.poppins(
+                fontSize: isMobile ? 22 : 32,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.neonCyan,
+              ),
+            ),
+            Text(
+              stat['label'] as String,
+              style: GoogleFonts.inter(
+                fontSize: isMobile ? 10 : 12,
+                color: AppTheme.textMuted,
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    )
+        .animate()
+        .fadeIn(duration: 600.ms, delay: 600.ms)
+        .slideY(begin: 0.3);
   }
 
   Widget _buildProfileImage(double size, bool isMobile) {
@@ -459,7 +649,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   spreadRadius: 3,
                 ),
                 BoxShadow(
-                  color: AppTheme.neonPurple.withValues(alpha: glowOpacity * 0.7),
+                  color:
+                      AppTheme.neonPurple.withValues(alpha: glowOpacity * 0.7),
                   blurRadius: 25,
                   spreadRadius: 2,
                 ),

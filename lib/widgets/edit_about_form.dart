@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:portfolio/services/portfolio_service.dart';
+import 'package:portfolio/theme/app_theme.dart';
 
 class EditAboutForm extends StatefulWidget {
   const EditAboutForm({super.key});
@@ -30,26 +30,20 @@ class _EditAboutFormState extends State<EditAboutForm> {
 
   Future<void> _loadAboutData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final data = await _portfolioService.getAboutData();
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       if (data != null) {
         setState(() {
           _summaryController.text = data['summary'] ?? '';
         });
       }
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       _showErrorSnackBar('Error loading about data');
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -63,20 +57,14 @@ class _EditAboutFormState extends State<EditAboutForm> {
           'updatedAt': DateTime.now().toIso8601String(),
         });
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
         _showSuccessSnackBar('About section updated successfully');
         Navigator.pop(context);
       } catch (e) {
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
         _showErrorSnackBar('Error updating about section: $e');
       } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
@@ -84,8 +72,14 @@ class _EditAboutFormState extends State<EditAboutForm> {
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
+        content: Text(message,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+        backgroundColor: AppTheme.bgCardLight,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+        ),
       ),
     );
   }
@@ -93,8 +87,14 @@ class _EditAboutFormState extends State<EditAboutForm> {
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
+        content: Text(message,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+        backgroundColor: AppTheme.bgCardLight,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: AppTheme.neonPink.withValues(alpha: 0.3)),
+        ),
       ),
     );
   }
@@ -111,32 +111,42 @@ class _EditAboutFormState extends State<EditAboutForm> {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: AppTheme.textPrimary,
             ),
-          ).animate().fadeIn().slideX(),
-          
+          ),
           const SizedBox(height: 8),
-          
           Text(
             'Write a compelling summary about your professional background, skills, and experience.',
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.grey[600],
+              color: AppTheme.textSecondary,
             ),
-          ).animate().fadeIn().slideX(delay: const Duration(milliseconds: 100)),
-          
+          ),
           const SizedBox(height: 16),
-          
           TextFormField(
             controller: _summaryController,
             maxLines: 8,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
             decoration: InputDecoration(
               hintText: 'Enter your professional summary...',
+              hintStyle: GoogleFonts.inter(color: AppTheme.textMuted),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppTheme.glassBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppTheme.glassBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppTheme.neonCyan.withValues(alpha: 0.6),
+                  width: 1.5,
+                ),
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: AppTheme.bgCard,
               alignLabelWithHint: true,
             ),
             validator: (value) {
@@ -148,61 +158,56 @@ class _EditAboutFormState extends State<EditAboutForm> {
               }
               return null;
             },
-          ).animate().fadeIn().slideX(delay: const Duration(milliseconds: 200)),
-
+          ),
           const SizedBox(height: 16),
-
-          // Character count
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: AppTheme.bgCard,
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppTheme.glassBorder),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
                   size: 16,
-                  color: Colors.grey[600],
+                  color: AppTheme.neonCyan,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'Character count: ${_summaryController.text.length}',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: AppTheme.textSecondary,
                   ),
                 ),
               ],
             ),
-          ).animate().fadeIn().slideX(delay: const Duration(milliseconds: 300)),
-
+          ),
           const SizedBox(height: 32),
-
-          // Save Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _saveAbout,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
+                backgroundColor: AppTheme.neonCyan,
+                foregroundColor: AppTheme.bgDarkest,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? CircularProgressIndicator(color: AppTheme.bgDarkest)
                   : Text(
                       'Save About Section',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-            ).animate().fadeIn().slideY(delay: const Duration(milliseconds: 400)),
+            ),
           ),
         ],
       ),

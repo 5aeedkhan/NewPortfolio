@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:portfolio/services/portfolio_service.dart';
 import 'package:portfolio/theme/app_theme.dart';
+import 'package:portfolio/widgets/scroll_reveal.dart';
 
 class DynamicAboutSection extends StatefulWidget {
   const DynamicAboutSection({super.key});
@@ -111,18 +112,22 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section heading with gradient text
-          _buildSectionHeading(isMobile),
+          ScrollReveal(child: _buildSectionHeading(isMobile)),
 
           SizedBox(height: isMobile ? 32 : 48),
 
           // Professional Summary Card
-          _buildSummaryCard(isMobile, isTablet),
+          ScrollReveal(
+            delay: 150.ms,
+            child: _buildSummaryCard(isMobile, isTablet),
+          ),
 
           SizedBox(height: 32),
 
           // View Full CV Button
-          Center(
-            child: _buildCvButton(),
+          ScrollReveal(
+            delay: 300.ms,
+            child: Center(child: _buildCvButton()),
           ),
         ],
       ),

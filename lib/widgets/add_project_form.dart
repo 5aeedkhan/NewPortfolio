@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import '../services/project_service.dart';
 import '../services/image_service.dart';
+import 'package:portfolio/theme/app_theme.dart';
 
 class AddProjectForm extends StatefulWidget {
   const AddProjectForm({super.key});
@@ -37,7 +38,6 @@ class _AddProjectFormState extends State<AddProjectForm> {
         maxHeight: 1200,
         imageQuality: 85,
       );
-
       if (image != null) {
         final bytes = await image.readAsBytes();
         setState(() {
@@ -46,11 +46,13 @@ class _AddProjectFormState extends State<AddProjectForm> {
         });
       }
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+        SnackBar(
+          content: Text('Error picking image: $e',
+              style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+          backgroundColor: AppTheme.bgCardLight,
+        ),
       );
     }
   }
@@ -61,23 +63,16 @@ class _AddProjectFormState extends State<AddProjectForm> {
         _isLoading = true;
         _uploadError = null;
       });
-
       try {
-        final imageUrl =
-            await _imageService.uploadImageBytes(_selectedImageBytes!);
-
+        final imageUrl = await _imageService.uploadImageBytes(_selectedImageBytes!);
         await _projectService.addProject(
           title: _titleController.text,
           description: _descriptionController.text,
           imageUrl: imageUrl,
-          technologies: _technologiesController.text
-              .split(',')
-              .map((e) => e.trim())
-              .toList(),
+          technologies: _technologiesController.text.split(',').map((e) => e.trim()).toList(),
           githubUrl: _githubUrlController.text,
           youtubeUrl: _youtubeUrlController.text,
         );
-
         _formKey.currentState!.reset();
         _titleController.clear();
         _descriptionController.clear();
@@ -85,10 +80,18 @@ class _AddProjectFormState extends State<AddProjectForm> {
         _youtubeUrlController.clear();
         _technologiesController.clear();
         setState(() => _selectedImageBytes = null);
-
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Project added successfully!')),
+            SnackBar(
+              content: Text('Project added successfully!',
+                  style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+              backgroundColor: AppTheme.bgCardLight,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+              ),
+            ),
           );
           Navigator.of(context).pop();
         }
@@ -96,323 +99,184 @@ class _AddProjectFormState extends State<AddProjectForm> {
         setState(() => _uploadError = e.toString());
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
+            SnackBar(
+              content: Text('Error: $e',
+                  style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+              backgroundColor: AppTheme.bgCardLight,
+            ),
           );
         }
       } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       }
     } else if (_selectedImageBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an image')),
+        SnackBar(
+          content: Text('Please select an image',
+              style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+          backgroundColor: AppTheme.bgCardLight,
+        ),
       );
     }
   }
 
+  InputDecoration _darkInputDecoration(String label, String hint, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      labelStyle: GoogleFonts.inter(color: AppTheme.textSecondary),
+      hintStyle: GoogleFonts.inter(color: AppTheme.textMuted),
+      prefixIcon: Icon(icon, size: 20, color: AppTheme.neonCyan),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppTheme.glassBorder)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppTheme.glassBorder)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppTheme.neonCyan.withValues(alpha: 0.6), width: 1.5)),
+      filled: true,
+      fillColor: AppTheme.bgCard,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Add New Project',
+            style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+            textAlign: TextAlign.center,
           ),
-        ],
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Add New Project',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              textAlign: TextAlign.center,
+          const SizedBox(height: 4),
+          Text(
+            'Share your amazing work',
+            style: GoogleFonts.inter(fontSize: 12, color: AppTheme.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _titleController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _darkInputDecoration('Title', 'Enter project title', Icons.title),
+            validator: (value) => value == null || value.isEmpty ? 'Please enter a title' : null,
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _descriptionController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary, height: 1.5),
+            decoration: _darkInputDecoration('Description', 'Describe your project in detail...', Icons.description),
+            maxLines: 6,
+            minLines: 3,
+            validator: (value) => value == null || value.isEmpty ? 'Please enter a description' : null,
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppTheme.glassBorder),
+              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.bgCard,
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Share your amazing work',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Title',
-                hintText: 'Enter project title',
-                prefixIcon: const Icon(Icons.title, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a title';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(
-                labelText: 'Description',
-                hintText: 'Describe your project in detail...',
-                prefixIcon: const Icon(Icons.description, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-                alignLabelWithHint: true,
-              ),
-              maxLines: 6,
-              minLines: 3,
-              textAlign: TextAlign.start,
-              style: GoogleFonts.poppins(
-                height: 1.5,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a description';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.shade50,
-              ),
-              child: Column(
-                children: [
-                  if (_selectedImageBytes != null) ...[
-                    Container(
-                      height: 150,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(8)),
-                        border: Border(
-                          bottom: BorderSide(color: Colors.grey.shade300),
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(8)),
-                        child: Image.memory(
-                          _selectedImageBytes!,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.error_outline,
-                                      color: Colors.red.shade300, size: 24),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Error loading image',
-                                    style: TextStyle(
-                                        color: Colors.red.shade300,
-                                        fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+            child: Column(
+              children: [
+                if (_selectedImageBytes != null) ...[
+                  Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                      border: Border(bottom: BorderSide(color: AppTheme.glassBorder)),
                     ),
-                  ],
-                  if (_uploadError != null) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
-                      child: Text(
-                        _uploadError!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _pickImage,
-                      icon: const Icon(Icons.image, size: 18),
-                      label: Text(
-                        _selectedImageBytes == null
-                            ? 'Select Image'
-                            : 'Change Image',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                      child: Image.memory(_selectedImageBytes!, fit: BoxFit.contain),
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _technologiesController,
-              decoration: InputDecoration(
-                labelText: 'Technologies',
-                hintText: 'Flutter, Firebase, Dart',
-                prefixIcon: const Icon(Icons.code, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter technologies';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _playStoreUrlController,
-              decoration: InputDecoration(
-                labelText: 'Playstore URL',
-                hintText: 'https://play.google.com/store/apps/details?id=...',
-                prefixIcon: const Icon(Icons.code, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-              ),
-              validator: (value) {
-                if (value != null && value.isNotEmpty) {
-                  if (!value.startsWith('http://') &&
-                      !value.startsWith('https://')) {
-                    return 'URL must start with http:// or https://';
-                  }
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _githubUrlController,
-              decoration: InputDecoration(
-                labelText: 'GitHub URL',
-                hintText: 'https://github.com/username/repo',
-                prefixIcon: const Icon(Icons.code, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-              ),
-              validator: (value) {
-                if (value != null && value.isNotEmpty) {
-                  if (!value.startsWith('http://') &&
-                      !value.startsWith('https://')) {
-                    return 'URL must start with http:// or https://';
-                  }
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _youtubeUrlController,
-              decoration: InputDecoration(
-                labelText: 'YouTube URL',
-                hintText: 'https://youtube.com/watch?v=...',
-                prefixIcon: const Icon(Icons.play_circle_outline, size: 20),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-              ),
-              validator: (value) {
-                if (value != null && value.isNotEmpty) {
-                  if (!value.startsWith('http://') &&
-                      !value.startsWith('https://')) {
-                    return 'URL must start with http:// or https://';
-                  }
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _submitForm,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 1,
-              ),
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Text(
-                      'Add Project',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                if (_uploadError != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Text(_uploadError!, style: GoogleFonts.inter(color: AppTheme.neonPink, fontSize: 12), textAlign: TextAlign.center),
+                  ),
+                ],
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _pickImage,
+                    icon: const Icon(Icons.image, size: 18),
+                    label: Text(_selectedImageBytes == null ? 'Select Image' : 'Change Image', style: GoogleFonts.inter(fontSize: 12)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.neonCyan,
+                      foregroundColor: AppTheme.bgDarkest,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _technologiesController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _darkInputDecoration('Technologies', 'Flutter, Firebase, Dart', Icons.code),
+            validator: (value) => value == null || value.isEmpty ? 'Please enter technologies' : null,
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _playStoreUrlController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _darkInputDecoration('Playstore URL', 'https://play.google.com/store/apps/details?id=...', Icons.link),
+            validator: (value) {
+              if (value != null && value.isNotEmpty && !value.startsWith('http://') && !value.startsWith('https://')) {
+                return 'URL must start with http:// or https://';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _githubUrlController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _darkInputDecoration('GitHub URL', 'https://github.com/username/repo', Icons.code),
+            validator: (value) {
+              if (value != null && value.isNotEmpty && !value.startsWith('http://') && !value.startsWith('https://')) {
+                return 'URL must start with http:// or https://';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _youtubeUrlController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _darkInputDecoration('YouTube URL', 'https://youtube.com/watch?v=...', Icons.play_circle_outline),
+            validator: (value) {
+              if (value != null && value.isNotEmpty && !value.startsWith('http://') && !value.startsWith('https://')) {
+                return 'URL must start with http:// or https://';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _isLoading ? null : _submitForm,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              backgroundColor: AppTheme.neonCyan,
+              foregroundColor: AppTheme.bgDarkest,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: _isLoading
+                ? SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppTheme.bgDarkest)),
+                  )
+                : Text('Add Project', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+          ),
+        ],
       ),
     );
   }

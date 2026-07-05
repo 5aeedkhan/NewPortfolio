@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import '../services/project_service.dart';
 import '../services/image_service.dart';
+import 'package:portfolio/theme/app_theme.dart';
 
 class EditProjectForm extends StatefulWidget {
   final String projectId;
@@ -39,19 +40,12 @@ class _EditProjectFormState extends State<EditProjectForm> {
   @override
   void initState() {
     super.initState();
-    _titleController =
-        TextEditingController(text: widget.projectData['title'] ?? '');
-    _descriptionController =
-        TextEditingController(text: widget.projectData['description'] ?? '');
-    _githubUrlController =
-        TextEditingController(text: widget.projectData['githubUrl'] ?? '');
-    _youtubeUrlController =
-        TextEditingController(text: widget.projectData['youtubeUrl'] ?? '');
-    _technologiesController = TextEditingController(
-      text: (widget.projectData['technologies'] as List?)?.join(', ') ?? '',
-    );
-    _playStoreUrlController =
-        TextEditingController(text: widget.projectData['playStoreUrl'] ?? '');
+    _titleController = TextEditingController(text: widget.projectData['title'] ?? '');
+    _descriptionController = TextEditingController(text: widget.projectData['description'] ?? '');
+    _githubUrlController = TextEditingController(text: widget.projectData['githubUrl'] ?? '');
+    _youtubeUrlController = TextEditingController(text: widget.projectData['youtubeUrl'] ?? '');
+    _technologiesController = TextEditingController(text: (widget.projectData['technologies'] as List?)?.join(', ') ?? '');
+    _playStoreUrlController = TextEditingController(text: widget.projectData['playStoreUrl'] ?? '');
     _existingImageUrl = widget.projectData['imageUrl'];
   }
 
@@ -65,240 +59,190 @@ class _EditProjectFormState extends State<EditProjectForm> {
       );
       if (image != null) {
         final bytes = await image.readAsBytes();
-        setState(() {
-          _selectedImageBytes = bytes;
-        });
+        setState(() => _selectedImageBytes = bytes);
       }
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+        SnackBar(
+          content: Text('Error picking image: $e', style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+          backgroundColor: AppTheme.bgCardLight,
+        ),
       );
     }
   }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
+      setState(() => _isLoading = true);
       try {
         String imageUrl = _existingImageUrl ?? '';
         if (_selectedImageBytes != null) {
           imageUrl = await _imageService.uploadImageBytes(_selectedImageBytes!);
         }
-
         await _projectService.updateProject(
           projectId: widget.projectId,
           title: _titleController.text,
           description: _descriptionController.text,
           imageUrl: imageUrl,
-          technologies: _technologiesController.text
-              .split(',')
-              .map((e) => e.trim())
-              .toList(),
+          technologies: _technologiesController.text.split(',').map((e) => e.trim()).toList(),
           githubUrl: _githubUrlController.text,
           youtubeUrl: _youtubeUrlController.text,
           playStoreUrl: _playStoreUrlController.text,
         );
-
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Project updated successfully!')),
+          SnackBar(
+            content: Text('Project updated successfully!', style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+            backgroundColor: AppTheme.bgCardLight,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: AppTheme.neonCyan.withValues(alpha: 0.3)),
+            ),
+          ),
         );
         Navigator.of(context).pop();
       } catch (e) {
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(
+            content: Text('Error: $e', style: GoogleFonts.inter(color: AppTheme.textPrimary)),
+            backgroundColor: AppTheme.bgCardLight,
+          ),
         );
       } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Edit Project',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Update your project details',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-
-            // Title
-            TextFormField(
-              controller: _titleController,
-              decoration:
-                  _inputDecoration('Title', 'Enter project title', Icons.title),
-              validator: (value) =>
-                  value!.isEmpty ? 'Please enter a title' : null,
-            ),
-            const SizedBox(height: 12),
-
-            // Description
-            TextFormField(
-              controller: _descriptionController,
-              decoration: _inputDecoration('Description',
-                  'Describe your project in detail...', Icons.description),
-              maxLines: 6,
-              minLines: 3,
-              textAlign: TextAlign.start,
-              style: GoogleFonts.poppins(
-                height: 1.5,
-              ),
-              validator: (value) =>
-                  value!.isEmpty ? 'Please enter a description' : null,
-            ),
-            const SizedBox(height: 12),
-
-            // Image
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.shade50,
-              ),
-              child: Column(
-                children: [
-                  if (_selectedImageBytes != null)
-                    ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: Image.memory(_selectedImageBytes!,
-                          height: 150, fit: BoxFit.cover),
-                    )
-                  else if (_existingImageUrl != null)
-                    ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: Image.network(_existingImageUrl!,
-                          height: 150, fit: BoxFit.cover),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _pickImage,
-                      icon: const Icon(Icons.image, size: 18),
-                      label: Text(
-                        _selectedImageBytes == null
-                            ? 'Change Image'
-                            : 'Replace Image',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Technologies
-            TextFormField(
-              controller: _technologiesController,
-              decoration: _inputDecoration(
-                  'Technologies', 'Flutter, Firebase, Dart', Icons.code),
-            ),
-            const SizedBox(height: 12),
-
-            // Playstore
-            TextFormField(
-              controller: _playStoreUrlController,
-              decoration: _inputDecoration(
-                  'Playstore URL', 'https://play.google.com/..', Icons.link),
-            ),
-            const SizedBox(height: 12),
-
-            // GitHub
-            TextFormField(
-              controller: _githubUrlController,
-              decoration: _inputDecoration(
-                  'GitHub URL', 'https://github.com/..', Icons.code),
-            ),
-            const SizedBox(height: 12),
-
-            // YouTube
-            TextFormField(
-              controller: _youtubeUrlController,
-              decoration: _inputDecoration('YouTube URL',
-                  'https://youtube.com/..', Icons.play_circle_outline),
-            ),
-            const SizedBox(height: 16),
-
-            // Submit Button
-            ElevatedButton(
-              onPressed: _isLoading ? null : _submitForm,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              child: _isLoading
-                  ? const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
-                  : Text('Update Project',
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   InputDecoration _inputDecoration(String label, String hint, IconData icon) {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      prefixIcon: Icon(icon, size: 20),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+      labelStyle: GoogleFonts.inter(color: AppTheme.textSecondary),
+      hintStyle: GoogleFonts.inter(color: AppTheme.textMuted),
+      prefixIcon: Icon(icon, size: 20, color: AppTheme.neonCyan),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppTheme.glassBorder)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppTheme.glassBorder)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppTheme.neonCyan.withValues(alpha: 0.6), width: 1.5)),
       filled: true,
-      fillColor: Colors.grey.shade50,
+      fillColor: AppTheme.bgCard,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Edit Project',
+            style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Update your project details',
+            style: GoogleFonts.inter(fontSize: 12, color: AppTheme.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _titleController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _inputDecoration('Title', 'Enter project title', Icons.title),
+            validator: (value) => value!.isEmpty ? 'Please enter a title' : null,
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _descriptionController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary, height: 1.5),
+            decoration: _inputDecoration('Description', 'Describe your project in detail...', Icons.description),
+            maxLines: 6,
+            minLines: 3,
+            validator: (value) => value!.isEmpty ? 'Please enter a description' : null,
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppTheme.glassBorder),
+              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.bgCard,
+            ),
+            child: Column(
+              children: [
+                if (_selectedImageBytes != null)
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                    child: Image.memory(_selectedImageBytes!, height: 150, fit: BoxFit.contain),
+                  )
+                else if (_existingImageUrl != null)
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                    child: Image.network(_existingImageUrl!, height: 150, fit: BoxFit.contain),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _pickImage,
+                    icon: const Icon(Icons.image, size: 18),
+                    label: Text(
+                      _selectedImageBytes == null ? 'Change Image' : 'Replace Image',
+                      style: GoogleFonts.inter(fontSize: 12),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.neonCyan,
+                      foregroundColor: AppTheme.bgDarkest,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _technologiesController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _inputDecoration('Technologies', 'Flutter, Firebase, Dart', Icons.code),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _playStoreUrlController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _inputDecoration('Playstore URL', 'https://play.google.com/..', Icons.link),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _githubUrlController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _inputDecoration('GitHub URL', 'https://github.com/..', Icons.code),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _youtubeUrlController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _inputDecoration('YouTube URL', 'https://youtube.com/..', Icons.play_circle_outline),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _isLoading ? null : _submitForm,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              backgroundColor: AppTheme.neonCyan,
+              foregroundColor: AppTheme.bgDarkest,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: _isLoading
+                ? CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppTheme.bgDarkest))
+                : Text('Update Project', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
     );
   }
 }

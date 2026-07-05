@@ -20,7 +20,7 @@ class ProjectsSection extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: 60,
+        vertical: 40,
         horizontal: isMobile ? 16 : 48,
       ),
       decoration: BoxDecoration(
@@ -107,18 +107,14 @@ class ProjectsSection extends StatelessWidget {
                                   );
                                 },
                                 icon: const Icon(Icons.add, size: 18),
-                                label: const Text('Add Project',
-                                    style: TextStyle(fontSize: 12)),
+                                label: Text('Add Project',
+                                    style: GoogleFonts.inter(fontSize: 12)),
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
-                                  backgroundColor:
-                                      Theme.of(context).primaryColor,
-                                  foregroundColor: Colors.white,
-                                  elevation: 3,
-                                  shadowColor: Theme.of(context)
-                                      .primaryColor
-                                      .withValues(alpha: 0.5),
+                                  backgroundColor: AppTheme.neonCyan,
+                                  foregroundColor: AppTheme.bgDarkest,
+                                  elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -198,18 +194,14 @@ class ProjectsSection extends StatelessWidget {
                                     );
                                   },
                                   icon: const Icon(Icons.add, size: 16),
-                                  label: const Text('Add Project',
-                                      style: TextStyle(fontSize: 11)),
+                                  label: Text('Add Project',
+                                      style: GoogleFonts.inter(fontSize: 11)),
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 8),
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    foregroundColor: Colors.white,
-                                    elevation: 3,
-                                    shadowColor: Theme.of(context)
-                                        .primaryColor
-                                        .withValues(alpha: 0.5),
+                                    backgroundColor: AppTheme.neonCyan,
+                                    foregroundColor: AppTheme.bgDarkest,
+                                    elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -274,15 +266,15 @@ class ProjectsSection extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
+                          backgroundColor: AppTheme.neonCyan,
+                          foregroundColor: AppTheme.bgDarkest,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: Text(
                           'Retry',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -478,7 +470,7 @@ class _ProjectCardState extends State<ProjectCard> {
                   decoration: BoxDecoration(
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(16)),
-                    color: AppTheme.bgElevated,
+                    color: AppTheme.bgCardLight,
                   ),
                   child: ClipRRect(
                     borderRadius:
@@ -486,16 +478,16 @@ class _ProjectCardState extends State<ProjectCard> {
                     child: _isValidImageUrl(sanitizedUrl)
                         ? CachedNetworkImage(
                             imageUrl: sanitizedUrl,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                             placeholder: (context, url) => Container(
-                              color: AppTheme.bgElevated,
+                              color: AppTheme.bgCardLight,
                               child: const Center(
                                 child:
                                     CircularProgressIndicator(strokeWidth: 2),
                               ),
                             ),
                             errorWidget: (context, url, error) => Container(
-                              color: AppTheme.bgElevated,
+                              color: AppTheme.bgCardLight,
                               child: const Center(
                                 child: Icon(Icons.error_outline,
                                     color: AppTheme.neonPink),
@@ -503,7 +495,7 @@ class _ProjectCardState extends State<ProjectCard> {
                             ),
                           )
                         : Container(
-                            color: AppTheme.bgElevated,
+                            color: AppTheme.bgCardLight,
                             child: const Center(
                               child: Icon(Icons.image_not_supported,
                                   color: AppTheme.textMuted),
