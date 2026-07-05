@@ -38,6 +38,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String _name = 'Muhammad Saeed Khan';
   String _profileImageUrl = '';
   bool _isLoadingProfile = true;
+  List<Map<String, dynamic>> _heroStats = [];
+
+  static const List<Map<String, dynamic>> _defaultHeroStats = [
+    {'value': 3, 'suffix': '+', 'label': 'Years Experience'},
+    {'value': 20, 'suffix': '+', 'label': 'Projects Done'},
+    {'value': 15, 'suffix': '+', 'label': 'Happy Clients'},
+    {'value': 5, 'suffix': '', 'label': 'Tech Stacks'},
+  ];
 
   late AnimationController _gradientController;
   late AnimationController _orbController;
@@ -197,7 +205,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       debugPrint('Profile data loaded: $data');
       if (data != null) {
         var imageUrl = data['profileImageUrl'] ?? '';
-        // Normalize URL: ensure https://
         if (imageUrl.isNotEmpty && imageUrl.startsWith('http://')) {
           imageUrl = imageUrl.replaceFirst('http://', 'https://');
         }
@@ -211,9 +218,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         debugPrint('No profile data found in Firestore');
         setState(() => _isLoadingProfile = false);
       }
+
+      // Load hero stats
+      final stats = await _portfolioService.getHeroStats();
+      if (stats.isNotEmpty) {
+        setState(() => _heroStats = stats);
+      } else {
+        setState(() => _heroStats = List.from(_defaultHeroStats));
+      }
     } catch (e) {
       debugPrint('Error loading profile data: $e');
-      setState(() => _isLoadingProfile = false);
+      setState(() {
+        _isLoadingProfile = false;
+        _heroStats = List.from(_defaultHeroStats);
+      });
     }
   }
 
@@ -601,12 +619,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildStatsRow(bool isMobile) {
-    final stats = [
-      {'value': 3, 'suffix': '+', 'label': 'Years Experience'},
-      {'value': 20, 'suffix': '+', 'label': 'Projects Done'},
-      {'value': 15, 'suffix': '+', 'label': 'Happy Clients'},
-      {'value': 5, 'suffix': '', 'label': 'Tech Stacks'},
-    ];
+    final stats = _heroStats.isNotEmpty ? _heroStats : _defaultHeroStats;
 
     return Wrap(
       spacing: isMobile ? 12 : 24,
@@ -616,8 +629,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return Column(
           children: [
             AnimatedCounter(
-              target: stat['value'] as int,
-              suffix: stat['suffix'] as String,
+              target: (stat['value'] as num).toInt(),
+              suffix: stat['suffix'] as String? ?? '',
               scrollController: _scrollController,
               style: GoogleFonts.poppins(
                 fontSize: isMobile ? 22 : 32,

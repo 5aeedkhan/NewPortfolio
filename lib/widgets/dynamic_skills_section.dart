@@ -200,8 +200,8 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
         horizontal: isMobile
             ? 16
             : isTablet
-                ? 32
-                : 48,
+                ? 40
+                : 80,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(

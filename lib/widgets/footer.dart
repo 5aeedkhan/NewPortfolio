@@ -16,7 +16,7 @@ class Footer extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 40,
-        horizontal: isMobile ? 20 : 48,
+        horizontal: isMobile ? 20 : 80,
       ),
       decoration: BoxDecoration(
         color: AppTheme.bgDarkest,

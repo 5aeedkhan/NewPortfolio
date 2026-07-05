@@ -126,6 +126,81 @@ class PortfolioService {
     }
   }
 
+  // Experience section
+  Future<List<Map<String, dynamic>>> getExperienceData() async {
+    try {
+      final snapshot = await _firestore
+          .collection('experience')
+          .orderBy('order', descending: false)
+          .get();
+      return snapshot.docs
+          .map((doc) => {...doc.data(), 'id': doc.id})
+          .toList();
+    } catch (e) {
+      debugPrint('Error getting experience data: $e');
+      return [];
+    }
+  }
+
+  Future<void> addExperienceItem(Map<String, dynamic> data) async {
+    try {
+      final count = await _firestore.collection('experience').count().get();
+      data['order'] = count.count;
+      data['createdAt'] = FieldValue.serverTimestamp();
+      await _firestore.collection('experience').add(data);
+    } catch (e) {
+      debugPrint('Error adding experience item: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateExperienceItem(String id, Map<String, dynamic> data) async {
+    try {
+      data['updatedAt'] = FieldValue.serverTimestamp();
+      await _firestore.collection('experience').doc(id).update(data);
+    } catch (e) {
+      debugPrint('Error updating experience item: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteExperienceItem(String id) async {
+    try {
+      await _firestore.collection('experience').doc(id).delete();
+    } catch (e) {
+      debugPrint('Error deleting experience item: $e');
+      rethrow;
+    }
+  }
+
+  // Hero stats
+  Future<List<Map<String, dynamic>>> getHeroStats() async {
+    try {
+      final doc =
+          await _firestore.collection(_collection).doc('hero_stats').get();
+      if (doc.exists && doc.data()!['stats'] != null) {
+        final List<dynamic> stats = doc.data()!['stats'];
+        return stats.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('Error getting hero stats: $e');
+      return [];
+    }
+  }
+
+  Future<void> updateHeroStats(List<Map<String, dynamic>> stats) async {
+    try {
+      await _firestore.collection(_collection).doc('hero_stats').set({
+        'stats': stats,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Error updating hero stats: $e');
+      rethrow;
+    }
+  }
+
   Future<void> trackVisit() async {
     try {
       final docRef = _firestore.collection(_analyticsCollection).doc('visits');

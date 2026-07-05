@@ -79,7 +79,7 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
     if (_isLoading) {
       return Container(
         padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 16 : isTablet ? 32 : 48,
+          horizontal: isMobile ? 16 : isTablet ? 40 : 80,
           vertical: 60,
         ),
         color: AppTheme.bgDark,
@@ -96,7 +96,7 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 16 : isTablet ? 32 : 48,
+        horizontal: isMobile ? 16 : isTablet ? 40 : 80,
         vertical: 60,
       ),
       decoration: BoxDecoration(
@@ -170,7 +170,7 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
   }
 
   Widget _buildSummaryCard(bool isMobile, bool isTablet) {
-    final maxWidth = isMobile ? double.infinity : (isTablet ? 700.0 : 800.0);
+    final maxWidth = isMobile ? double.infinity : (isTablet ? 800.0 : 1100.0);
 
     return Center(
       child: ConstrainedBox(

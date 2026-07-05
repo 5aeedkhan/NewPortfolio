@@ -3,8 +3,10 @@ import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/theme/app_theme.dart';
 import 'package:portfolio/widgets/scroll_reveal.dart';
+import 'package:portfolio/services/portfolio_service.dart';
 
 class ExperienceItem {
+  final String id;
   final String role;
   final String company;
   final String period;
@@ -14,6 +16,7 @@ class ExperienceItem {
   final Color color;
 
   const ExperienceItem({
+    this.id = '',
     required this.role,
     required this.company,
     required this.period,
@@ -22,13 +25,63 @@ class ExperienceItem {
     required this.icon,
     required this.color,
   });
+
+  factory ExperienceItem.fromMap(Map<String, dynamic> map) {
+    return ExperienceItem(
+      id: map['id'] ?? '',
+      role: map['role'] ?? '',
+      company: map['company'] ?? '',
+      period: map['period'] ?? '',
+      description: map['description'] ?? '',
+      achievements: List<String>.from(map['achievements'] ?? []),
+      icon: _getIconFromCodePoint(map['icon'] ?? 0),
+      color: Color(map['color'] ?? 0xFF00E5FF),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'role': role,
+      'company': company,
+      'period': period,
+      'description': description,
+      'achievements': achievements,
+      'icon': icon.codePoint,
+      'color': color.toARGB32(),
+    };
+  }
+
+  static IconData _getIconFromCodePoint(int codePoint) {
+    const iconMap = {
+      0xe3c9: Icons.code,
+      0xe324: Icons.phone_android,
+      0xe80c: Icons.school,
+      0xe57f: Icons.work,
+      0xe85d: Icons.build,
+      0xe8b8: Icons.rocket_launch,
+      0xe87c: Icons.star,
+      0xe30a: Icons.computer,
+      0xe335: Icons.psychology,
+      0xe56c: Icons.group,
+    };
+    return iconMap[codePoint] ?? Icons.work;
+  }
 }
 
-class ExperienceSection extends StatelessWidget {
+class ExperienceSection extends StatefulWidget {
   final ScrollController? scrollController;
   const ExperienceSection({super.key, this.scrollController});
 
-  static const List<ExperienceItem> _experiences = [
+  @override
+  State<ExperienceSection> createState() => _ExperienceSectionState();
+}
+
+class _ExperienceSectionState extends State<ExperienceSection> {
+  final PortfolioService _portfolioService = PortfolioService();
+  List<ExperienceItem> _experiences = [];
+  bool _isLoading = true;
+
+  static const List<ExperienceItem> _defaultExperiences = [
     ExperienceItem(
       role: 'Flutter Developer',
       company: 'Freelance',
@@ -74,6 +127,35 @@ class ExperienceSection extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadExperienceData();
+  }
+
+  Future<void> _loadExperienceData() async {
+    try {
+      final data = await _portfolioService.getExperienceData();
+      if (data.isNotEmpty) {
+        setState(() {
+          _experiences = data.map((e) => ExperienceItem.fromMap(e)).toList();
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _experiences = _defaultExperiences;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading experience data: $e');
+      setState(() {
+        _experiences = _defaultExperiences;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
@@ -81,7 +163,7 @@ class ExperienceSection extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 60,
-        horizontal: isMobile ? 16 : 48,
+        horizontal: isMobile ? 16 : 80,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -96,9 +178,8 @@ class ExperienceSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section heading
           ScrollReveal(
-            scrollController: scrollController,
+            scrollController: widget.scrollController,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -137,8 +218,15 @@ class ExperienceSection extends StatelessWidget {
 
           SizedBox(height: isMobile ? 32 : 48),
 
-          // Timeline
-          _buildTimeline(isMobile),
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.neonCyan),
+              ),
+            )
+          else
+            _buildTimeline(isMobile),
         ],
       ),
     );
@@ -152,7 +240,7 @@ class ExperienceSection extends StatelessWidget {
         final isLast = index == _experiences.length - 1;
 
         return ScrollReveal(
-          scrollController: scrollController,
+          scrollController: widget.scrollController,
           delay: Duration(milliseconds: index * 150),
           child: Padding(
             padding: EdgeInsets.only(bottom: isLast ? 0 : 32),
@@ -162,7 +250,6 @@ class ExperienceSection extends StatelessWidget {
                 // Timeline line + dot
                 Column(
                   children: [
-                    // Icon dot
                     Container(
                       width: 48,
                       height: 48,
@@ -186,7 +273,6 @@ class ExperienceSection extends StatelessWidget {
                         size: 22,
                       ),
                     ),
-                    // Connecting line
                     if (!isLast)
                       Container(
                         width: 2,
@@ -226,7 +312,6 @@ class ExperienceSection extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Period badge
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
@@ -249,7 +334,6 @@ class ExperienceSection extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            // Role
                             Text(
                               exp.role,
                               style: GoogleFonts.poppins(
@@ -259,7 +343,6 @@ class ExperienceSection extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            // Company
                             Text(
                               exp.company,
                               style: GoogleFonts.inter(
@@ -269,7 +352,6 @@ class ExperienceSection extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            // Description
                             Text(
                               exp.description,
                               style: GoogleFonts.inter(
@@ -279,7 +361,6 @@ class ExperienceSection extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            // Achievements
                             ...exp.achievements.map((achievement) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),

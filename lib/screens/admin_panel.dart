@@ -11,6 +11,8 @@ import 'package:portfolio/widgets/edit_about_form.dart';
 import 'package:portfolio/widgets/edit_skills_form.dart';
 import 'package:portfolio/widgets/edit_social_links_form.dart';
 import 'package:portfolio/widgets/edit_cv_form.dart';
+import 'package:portfolio/widgets/edit_experience_form.dart';
+import 'package:portfolio/widgets/edit_hero_stats_form.dart';
 
 class AdminPanel extends StatefulWidget {
   const AdminPanel({super.key});
@@ -188,6 +190,26 @@ class _AdminPanelState extends State<AdminPanel> {
                         [AppTheme.neonBlue, AppTheme.neonCyan],
                         () => _showEditDialog(
                             context, 'CV/Resume', const EditCVForm()),
+                      ),
+                      _buildManagementCard(
+                        context,
+                        'Experience',
+                        'Add, edit, or remove work experience timeline',
+                        Icons.work_history,
+                        AppTheme.neonGreen,
+                        [AppTheme.neonGreen, AppTheme.neonCyan],
+                        () => _showEditDialog(
+                            context, 'Experience', const EditExperienceForm()),
+                      ),
+                      _buildManagementCard(
+                        context,
+                        'Hero Stats',
+                        'Edit the animated stats shown in hero section',
+                        Icons.bar_chart,
+                        AppTheme.neonPurple,
+                        [AppTheme.neonPurple, AppTheme.neonPink],
+                        () => _showEditDialog(
+                            context, 'Hero Stats', const EditHeroStatsForm()),
                       ),
                       _buildManagementCard(
                         context,

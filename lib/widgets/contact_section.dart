@@ -110,7 +110,7 @@ class _ContactSectionState extends State<ContactSection> {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 60,
-        horizontal: isMobile ? 16 : isTablet ? 32 : 48,
+        horizontal: isMobile ? 16 : isTablet ? 40 : 80,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -179,7 +179,7 @@ class _ContactSectionState extends State<ContactSection> {
   }
 
   Widget _buildContactForm(bool isMobile, bool isTablet) {
-    final maxWidth = isMobile ? double.infinity : (isTablet ? 600.0 : 700.0);
+    final maxWidth = isMobile ? double.infinity : (isTablet ? 700.0 : 900.0);
 
     return Center(
       child: ConstrainedBox(

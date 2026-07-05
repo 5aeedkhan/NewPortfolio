@@ -20,7 +20,7 @@ class ProjectsSection extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 40,
-        horizontal: isMobile ? 16 : 48,
+        horizontal: isMobile ? 16 : 80,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
