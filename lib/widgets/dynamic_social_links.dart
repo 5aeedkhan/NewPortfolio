@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:portfolio/services/portfolio_service.dart';
+import 'package:portfolio/theme/app_theme.dart';
 
 class SocialLinkData {
   final String platform;
@@ -174,42 +175,87 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 28),
-        onPressed: () async {
-          final uri = Uri.parse(finalUrl);
-          debugPrint('Attempting to launch link: $finalUrl');
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: _NeonSocialPill(
+        icon: icon,
+        url: finalUrl,
+        platform: platform,
+        delay: delay,
+      ),
+    );
+  }
+}
+
+class _NeonSocialPill extends StatefulWidget {
+  final IconData icon;
+  final String url;
+  final String platform;
+  final int delay;
+
+  const _NeonSocialPill({
+    required this.icon,
+    required this.url,
+    required this.platform,
+    required this.delay,
+  });
+
+  @override
+  State<_NeonSocialPill> createState() => _NeonSocialPillState();
+}
+
+class _NeonSocialPillState extends State<_NeonSocialPill> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: () async {
+          final uri = Uri.parse(widget.url);
           final canLaunch = await canLaunchUrl(uri);
-          if (!context.mounted) {
-            return;
-          }
+          if (!context.mounted) return;
           if (canLaunch) {
-            debugPrint('Link can be launched.');
-            try {
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-              debugPrint('Link launched successfully.');
-            } catch (e) {
-              debugPrint('Error launching link: $e');
-              if (!context.mounted) {
-                return;
-              }
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text('Could not launch link: ${e.toString()}')),
-              );
-            }
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           } else {
-            debugPrint('Link cannot be launched.');
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Could not launch link.')),
             );
           }
         },
-      ).animate().fadeIn(delay: Duration(milliseconds: delay * 200)).scale(
-            delay: Duration(milliseconds: delay * 200),
-            duration: const Duration(milliseconds: 400),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _isHovered
+                ? AppTheme.neonCyan.withValues(alpha: 0.15)
+                : AppTheme.glassBg,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _isHovered
+                  ? AppTheme.neonCyan.withValues(alpha: 0.5)
+                  : AppTheme.glassBorder,
+              width: 1,
+            ),
+            boxShadow: _isHovered
+                ? AppTheme.neonGlow(color: AppTheme.neonCyan, blurRadius: 12)
+                : [],
           ),
-    );
+          child: Icon(
+            widget.icon,
+            color: _isHovered ? AppTheme.neonCyan : AppTheme.textPrimary,
+            size: 22,
+          ),
+        ),
+      ),
+    )
+        .animate()
+        .fadeIn(delay: Duration(milliseconds: widget.delay * 150))
+        .scale(
+          delay: Duration(milliseconds: widget.delay * 150),
+          duration: const Duration(milliseconds: 400),
+          begin: const Offset(0.5, 0.5),
+        );
   }
 }

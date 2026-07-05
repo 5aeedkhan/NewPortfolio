@@ -172,6 +172,56 @@ class PortfolioService {
         .snapshots();
   }
 
+  // Contact messages
+  Future<void> submitContactMessage({
+    required String name,
+    required String email,
+    required String message,
+  }) async {
+    try {
+      await _firestore.collection('contact_messages').add({
+        'name': name,
+        'email': email,
+        'message': message,
+        'timestamp': FieldValue.serverTimestamp(),
+        'read': false,
+      });
+    } catch (e) {
+      debugPrint('Error submitting contact message: $e');
+      rethrow;
+    }
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchContactMessages({
+    int limit = 20,
+  }) {
+    return _firestore
+        .collection('contact_messages')
+        .orderBy('timestamp', descending: true)
+        .limit(limit)
+        .snapshots();
+  }
+
+  Future<void> markMessageAsRead(String docId) async {
+    try {
+      await _firestore.collection('contact_messages').doc(docId).update({
+        'read': true,
+      });
+    } catch (e) {
+      debugPrint('Error marking message as read: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteMessage(String docId) async {
+    try {
+      await _firestore.collection('contact_messages').doc(docId).delete();
+    } catch (e) {
+      debugPrint('Error deleting message: $e');
+      rethrow;
+    }
+  }
+
   String _resolvePlatformLabel() {
     if (kIsWeb) {
       return 'Web';
