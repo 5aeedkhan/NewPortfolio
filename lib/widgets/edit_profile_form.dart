@@ -4,7 +4,6 @@ import 'package:portfolio/services/portfolio_service.dart';
 import 'package:portfolio/services/image_service.dart';
 import 'package:portfolio/theme/app_theme.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class EditProfileForm extends StatefulWidget {
   const EditProfileForm({super.key});
@@ -69,7 +68,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
 
       if (image != null) {
         setState(() => _isUploading = true);
-        final imageUrl = await _imageService.uploadImage(File(image.path));
+        final bytes = await image.readAsBytes();
+        final imageUrl = await _imageService.uploadImageBytes(bytes);
         if (!mounted) return;
         setState(() {
           _profileImageUrl = imageUrl;

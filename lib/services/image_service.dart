@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
@@ -32,16 +31,6 @@ class ImageService {
       }
     } catch (e) {
       throw Exception('Error uploading image: $e');
-    }
-  }
-
-  // Keep the File version for non-web platforms
-  Future<String> uploadImage(File imageFile) async {
-    try {
-      final bytes = await imageFile.readAsBytes();
-      return uploadImageBytes(bytes);
-    } catch (e) {
-      throw Exception('Error reading image file: $e');
     }
   }
 } 
