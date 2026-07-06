@@ -162,9 +162,10 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
           style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textSecondary),
         ),
         const SizedBox(height: 20),
-        Expanded(
-          child: ListView.builder(
-            itemCount: _socialLinks.length,
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _socialLinks.length,
             itemBuilder: (context, index) {
               final link = _socialLinks[index];
               final controller = _controllers[link.platform]!;
@@ -251,7 +252,6 @@ class _EditSocialLinksFormState extends State<EditSocialLinksForm> {
                 ),
               );
             },
-          ),
         ),
         const SizedBox(height: 20),
         SizedBox(
