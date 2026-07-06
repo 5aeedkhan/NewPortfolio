@@ -3,7 +3,6 @@
     "rules": "firestore.rules"
   },
   "hosting": {
-    "site": "saeedkhanportfolio",
     "public": "build/web",
     "ignore": [
       "firebase.json",

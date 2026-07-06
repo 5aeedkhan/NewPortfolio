@@ -535,19 +535,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           SizedBox(height: isMobile ? 6 : 10),
 
           // Name with gradient text
-          ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: AppTheme.neonGradientFull,
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ).createShader(bounds),
-            child: Text(
-              _name,
-              style: GoogleFonts.poppins(
-                fontSize: isMobile ? 36 : 56,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: -1,
+          Center(
+            child: ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: AppTheme.neonGradientFull,
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ).createShader(bounds),
+              child: Text(
+                _name,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: isMobile ? 36 : 56,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: -1,
+                ),
               ),
             ),
           ).animate().fadeIn(duration: 800.ms, delay: 200.ms).slideY(begin: 0.3),

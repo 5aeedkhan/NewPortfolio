@@ -210,36 +210,22 @@ class NavBar extends StatelessWidget {
   Widget _buildMobileNav(
       BuildContext context, List<Map<String, dynamic>> sections) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Logo
-        Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'logo.jpeg',
-                width: 30,
-                height: 30,
-                fit: BoxFit.cover,
-              ),
+        // Logo only (no name on mobile to save space)
+        GestureDetector(
+          onTap: () => _scrollToKey(heroKey),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              'logo.jpeg',
+              width: 30,
+              height: 30,
+              fit: BoxFit.cover,
             ),
-            const SizedBox(width: 8),
-            ShaderMask(
-              shaderCallback: (bounds) =>
-                  AppTheme.textGradient.createShader(bounds),
-              child: Text(
-                name.isNotEmpty ? name : 'Portfolio',
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-        // Condensed nav icons
+        const SizedBox(width: 8),
+        // Nav items
         Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,

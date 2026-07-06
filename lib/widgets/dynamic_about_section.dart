@@ -216,15 +216,18 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
                     ],
                   ).animate().fadeIn().slideX(delay: 100.ms),
                   const SizedBox(height: 20),
-                  Text(
-                    _summary,
-                    textAlign: TextAlign.justify,
-                    style: GoogleFonts.inter(
-                      fontSize: isMobile ? 14 : 16,
-                      height: 1.7,
-                      color: AppTheme.textSecondary,
+                  ..._summary.split('\n').where((p) => p.trim().isNotEmpty).map((paragraph) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      paragraph.trim(),
+                      textAlign: isMobile ? TextAlign.left : TextAlign.justify,
+                      style: GoogleFonts.inter(
+                        fontSize: isMobile ? 14 : 16,
+                        height: 1.7,
+                        color: AppTheme.textSecondary,
+                      ),
                     ),
-                  ).animate().fadeIn().slideY(delay: 150.ms, begin: 0.2),
+                  )).toList(),
                 ],
               ),
             ),
