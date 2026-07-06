@@ -173,9 +173,10 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
           style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textSecondary),
         ),
         const SizedBox(height: 20),
-        Expanded(
-          child: ListView.builder(
-            itemCount: _skillCategories.length,
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _skillCategories.length,
             itemBuilder: (context, index) {
               final category = _skillCategories[index];
               return Container(
@@ -272,7 +273,6 @@ class _EditSkillsFormState extends State<EditSkillsForm> {
                 ),
               );
             },
-          ),
         ),
         const SizedBox(height: 20),
         SizedBox(
