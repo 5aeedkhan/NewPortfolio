@@ -63,88 +63,18 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
           _isLoading = false;
         });
       } else {
-        // Use default skills if no data found
         setState(() {
-          _skillCategories = _getDefaultSkills();
+          _skillCategories = [];
           _isLoading = false;
         });
       }
     } catch (e) {
       debugPrint('Error loading skills data: $e');
       setState(() {
-        _skillCategories = _getDefaultSkills();
+        _skillCategories = [];
         _isLoading = false;
       });
     }
-  }
-
-  List<SkillCategory> _getDefaultSkills() {
-    return [
-      SkillCategory(
-        title: 'Programming Languages',
-        skills: ['Dart', 'JavaScript'],
-        icon: Icons.code,
-        color: Colors.blue,
-      ),
-      SkillCategory(
-        title: 'Flutter Development',
-        skills: [
-          'UI/UX Implementation',
-          'Custom Widgets',
-          'State Management (Provider, Riverpod)',
-          'Animations (Implicit, Explicit, flutter_animate)',
-          'REST APIs Integration',
-          'Firebase (Auth, Firestore, Storage, Cloud Messaging)',
-          'Image Uploading (ImgBB API)',
-        ],
-        icon: Icons.flutter_dash,
-        color: Colors.indigo,
-      ),
-      SkillCategory(
-        title: 'Mobile Development',
-        skills: [
-          'Cross-Platform Apps (iOS & Android)',
-          'Native Android Understanding',
-        ],
-        icon: Icons.phone_android,
-        color: Colors.green,
-      ),
-      SkillCategory(
-        title: 'Architecture Patterns',
-        skills: ['MVVM (Model-View-ViewModel)'],
-        icon: Icons.architecture,
-        color: Colors.orange,
-      ),
-      SkillCategory(
-        title: 'Version Control',
-        skills: ['Git', 'GitHub'],
-        icon: Icons.merge_type,
-        color: Colors.red,
-      ),
-      SkillCategory(
-        title: 'UI/UX Design Tools',
-        skills: ['Figma', 'Adobe XD', 'Canva'],
-        icon: Icons.design_services,
-        color: Colors.pink,
-      ),
-      SkillCategory(
-        title: 'IDEs & Tools',
-        skills: ['Android Studio', 'Visual Studio Code'],
-        icon: Icons.build,
-        color: Colors.amber,
-      ),
-      SkillCategory(
-        title: 'Soft Skills',
-        skills: [
-          'Strong Communication & Presentation',
-          'Time Management & Organization',
-          'Team Collaboration & Leadership',
-          'Problem Solving & Critical Thinking',
-        ],
-        icon: Icons.people,
-        color: Colors.cyan,
-      ),
-    ];
   }
 
   IconData _getIconFromCodePoint(int codePoint) {
@@ -192,6 +122,10 @@ class _DynamicSkillsSectionState extends State<DynamicSkillsSection> {
           ),
         ),
       );
+    }
+
+    if (_skillCategories.isEmpty) {
+      return const SizedBox.shrink();
     }
 
     return Container(

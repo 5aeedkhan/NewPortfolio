@@ -36,29 +36,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _showScrollToTop = false;
   double _scrollProgress = 0;
 
-  String _name = 'Muhammad Saeed Khan';
+  String _name = '';
   String _profileImageUrl = '';
   bool _isLoadingProfile = true;
   List<Map<String, dynamic>> _heroStats = [];
-
-  static const List<Map<String, dynamic>> _defaultHeroStats = [
-    {'value': 3, 'suffix': '+', 'label': 'Years Experience'},
-    {'value': 20, 'suffix': '+', 'label': 'Projects Done'},
-    {'value': 15, 'suffix': '+', 'label': 'Happy Clients'},
-    {'value': 5, 'suffix': '', 'label': 'Tech Stacks'},
-  ];
 
   late AnimationController _gradientController;
   late AnimationController _orbController;
   late AnimationController _typewriterController;
 
   // Typewriter
-  final List<String> _titles = [
-    'Flutter Developer',
-    'UI/UX Enthusiast',
-    'Mobile App Engineer',
-    'Problem Solver',
-  ];
+  List<String> _titles = [];
   int _currentTitleIndex = 0;
   String _displayedTitle = '';
   int _charIndex = 0;
@@ -98,6 +86,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _onTypewriterTick(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
+      if (_titles.isEmpty) {
+        _displayedTitle = '';
+        return;
+      }
       final fullText = _titles[_currentTitleIndex];
 
       if (!_isDeleting) {
@@ -212,9 +204,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         }
         debugPrint('Profile image URL: $imageUrl');
         setState(() {
-          _name = data['name'] ?? 'Muhammad Saeed Khan';
+          _name = data['name'] ?? '';
           _profileImageUrl = imageUrl;
           _isLoadingProfile = false;
+          if (data['titles'] != null) {
+            _titles = List<String>.from(data['titles']);
+            if (_titles.isNotEmpty) {
+              _currentTitleIndex = 0;
+              _startTypewriter();
+            }
+          }
         });
       } else {
         debugPrint('No profile data found in Firestore');
@@ -225,14 +224,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       final stats = await _portfolioService.getHeroStats();
       if (stats.isNotEmpty) {
         setState(() => _heroStats = stats);
-      } else {
-        setState(() => _heroStats = List.from(_defaultHeroStats));
       }
     } catch (e) {
       debugPrint('Error loading profile data: $e');
       setState(() {
         _isLoadingProfile = false;
-        _heroStats = List.from(_defaultHeroStats);
       });
     }
   }
@@ -276,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   key: _contactKey,
                   child: const ContactSection(),
                 ),
-                const Footer(),
+                Footer(name: _name),
               ],
             ),
           ),
@@ -292,6 +288,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             activeIndex: _activeSection,
             scrollProgress: _scrollProgress,
             onAdminPanelClosed: _loadProfileData,
+            name: _name,
           ),
 
           // Scroll-to-top button
@@ -605,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           SizedBox(height: isMobile ? 24 : 32),
 
           // Animated stats row
-          _buildStatsRow(isMobile),
+          if (_heroStats.isNotEmpty) _buildStatsRow(isMobile),
 
           SizedBox(height: isMobile ? 20 : 28),
 
@@ -621,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildStatsRow(bool isMobile) {
-    final stats = _heroStats.isNotEmpty ? _heroStats : _defaultHeroStats;
+    final stats = _heroStats;
 
     return Wrap(
       spacing: isMobile ? 12 : 24,

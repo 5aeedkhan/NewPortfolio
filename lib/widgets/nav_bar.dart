@@ -16,6 +16,7 @@ class NavBar extends StatelessWidget {
   final int activeIndex;
   final double scrollProgress;
   final VoidCallback? onAdminPanelClosed;
+  final String name;
 
   const NavBar({
     super.key,
@@ -28,6 +29,7 @@ class NavBar extends StatelessWidget {
     required this.activeIndex,
     this.scrollProgress = 0,
     this.onAdminPanelClosed,
+    this.name = '',
   });
 
   void _scrollToKey(GlobalKey key) {
@@ -144,7 +146,7 @@ class NavBar extends StatelessWidget {
                   shaderCallback: (bounds) =>
                       AppTheme.textGradient.createShader(bounds),
                   child: Text(
-                    'Muhammad Saeed Khan',
+                    name.isNotEmpty ? name : 'Portfolio',
                     style: GoogleFonts.poppins(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -227,7 +229,7 @@ class NavBar extends StatelessWidget {
               shaderCallback: (bounds) =>
                   AppTheme.textGradient.createShader(bounds),
               child: Text(
-                'M. Saeed Khan',
+                name.isNotEmpty ? name : 'Portfolio',
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,

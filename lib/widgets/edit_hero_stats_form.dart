@@ -16,13 +16,6 @@ class _EditHeroStatsFormState extends State<EditHeroStatsForm> {
   bool _isLoading = true;
   bool _isSaving = false;
 
-  static const List<Map<String, dynamic>> _defaultStats = [
-    {'value': 3, 'suffix': '+', 'label': 'Years Experience'},
-    {'value': 20, 'suffix': '+', 'label': 'Projects Done'},
-    {'value': 15, 'suffix': '+', 'label': 'Happy Clients'},
-    {'value': 5, 'suffix': '', 'label': 'Tech Stacks'},
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -33,12 +26,11 @@ class _EditHeroStatsFormState extends State<EditHeroStatsForm> {
     try {
       final stats = await _portfolioService.getHeroStats();
       setState(() {
-        _stats = stats.isNotEmpty ? stats : List.from(_defaultStats);
+        _stats = stats;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _stats = List.from(_defaultStats);
         _isLoading = false;
       });
     }

@@ -16,6 +16,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _titleController = TextEditingController();
+  final _titlesController = TextEditingController();
   final PortfolioService _portfolioService = PortfolioService();
   final ImageService _imageService = ImageService();
 
@@ -33,6 +34,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
   void dispose() {
     _nameController.dispose();
     _titleController.dispose();
+    _titlesController.dispose();
     super.dispose();
   }
 
@@ -43,9 +45,12 @@ class _EditProfileFormState extends State<EditProfileForm> {
       if (!mounted) return;
       if (data != null) {
         setState(() {
-          _nameController.text = data['name'] ?? 'Muhammad Saeed Khan';
-          _titleController.text = data['title'] ?? 'Mobile App Developer';
+          _nameController.text = data['name'] ?? '';
+          _titleController.text = data['title'] ?? '';
           _profileImageUrl = data['profileImageUrl'];
+          if (data['titles'] != null) {
+            _titlesController.text = (data['titles'] as List).join(', ');
+          }
         });
       }
     } catch (e) {
@@ -91,6 +96,11 @@ class _EditProfileFormState extends State<EditProfileForm> {
         await _portfolioService.updateProfileData({
           'name': _nameController.text.trim(),
           'title': _titleController.text.trim(),
+          'titles': _titlesController.text
+              .split(',')
+              .map((t) => t.trim())
+              .where((t) => t.isNotEmpty)
+              .toList(),
           'profileImageUrl': _profileImageUrl,
           'updatedAt': DateTime.now().toIso8601String(),
         });
@@ -257,6 +267,22 @@ class _EditProfileFormState extends State<EditProfileForm> {
               }
               return null;
             },
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Typewriter Titles (comma-separated)',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: _titlesController,
+            style: GoogleFonts.inter(color: AppTheme.textPrimary),
+            decoration: _darkInputDecoration('Flutter Developer, UI/UX Enthusiast, ...', Icons.title),
+            maxLines: 2,
           ),
           const SizedBox(height: 32),
           SizedBox(

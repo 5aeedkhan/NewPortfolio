@@ -82,51 +82,6 @@ class _ExperienceSectionState extends State<ExperienceSection> {
   List<ExperienceItem> _cachedExperiences = [];
   bool _hasLoaded = false;
 
-  static const List<ExperienceItem> _defaultExperiences = [
-    ExperienceItem(
-      role: 'Flutter Developer',
-      company: 'Freelance',
-      period: '2023 — Present',
-      description:
-          'Building cross-platform mobile and web applications with Flutter, delivering high-quality UI and seamless user experiences.',
-      achievements: [
-        'Developed 15+ production-ready Flutter apps',
-        'Integrated Firebase, REST APIs, and third-party services',
-        'Implemented responsive designs for mobile, tablet, and web',
-      ],
-      icon: Icons.code,
-      color: AppTheme.neonCyan,
-    ),
-    ExperienceItem(
-      role: 'Mobile App Developer',
-      company: 'Various Startups',
-      period: '2022 — 2023',
-      description:
-          'Worked with startups to build MVPs and scale their mobile applications from idea to launch.',
-      achievements: [
-        'Published apps on Play Store and App Store',
-        'Optimized app performance and reduced load times by 40%',
-        'Collaborated with designers and backend teams',
-      ],
-      icon: Icons.phone_android,
-      color: AppTheme.neonPurple,
-    ),
-    ExperienceItem(
-      role: 'Computer Science Student',
-      company: 'University',
-      period: '2020 — 2024',
-      description:
-          'Pursued a degree in Computer Science, focusing on software engineering, algorithms, and mobile development.',
-      achievements: [
-        'Built foundational knowledge in data structures and algorithms',
-        'Completed multiple projects using Flutter and Dart',
-        'Participated in coding competitions and hackathons',
-      ],
-      icon: Icons.school,
-      color: AppTheme.neonBlue,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -198,8 +153,6 @@ class _ExperienceSectionState extends State<ExperienceSection> {
                 if (data.isNotEmpty) {
                   _cachedExperiences =
                       data.map((e) => ExperienceItem.fromMap(e)).toList();
-                } else {
-                  _cachedExperiences = _defaultExperiences;
                 }
                 _hasLoaded = true;
               }
@@ -212,6 +165,10 @@ class _ExperienceSectionState extends State<ExperienceSection> {
                         AlwaysStoppedAnimation<Color>(AppTheme.neonCyan),
                   ),
                 );
+              }
+
+              if (_cachedExperiences.isEmpty) {
+                return const SizedBox.shrink();
               }
 
               return _buildTimeline(isMobile, _cachedExperiences);

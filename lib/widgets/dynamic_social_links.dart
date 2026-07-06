@@ -62,48 +62,18 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
           _isLoading = false;
         });
       } else {
-        // Use default social links if no data found
         setState(() {
-          _socialLinks = _getDefaultSocialLinks();
+          _socialLinks = [];
           _isLoading = false;
         });
       }
     } catch (e) {
       debugPrint('Error loading social links: $e');
       setState(() {
-        _socialLinks = _getDefaultSocialLinks();
+        _socialLinks = [];
         _isLoading = false;
       });
     }
-  }
-
-  List<SocialLinkData> _getDefaultSocialLinks() {
-    return [
-      SocialLinkData(
-        platform: 'Email',
-        url: 'ms4eedkhan@gmail.com',
-        icon: Icons.email,
-        color: Colors.red,
-      ),
-      SocialLinkData(
-        platform: 'LinkedIn',
-        url: 'https://linkedin.com/in/s4eedkhan',
-        icon: FontAwesomeIcons.linkedin,
-        color: Colors.blue,
-      ),
-      SocialLinkData(
-        platform: 'GitHub',
-        url: 'https://github.com/5aeedkhan',
-        icon: FontAwesomeIcons.github,
-        color: Colors.black87,
-      ),
-      SocialLinkData(
-        platform: 'WhatsApp',
-        url: '+923359350658',
-        icon: FontAwesomeIcons.whatsapp,
-        color: Colors.green,
-      ),
-    ];
   }
 
   IconData _getIconFromCodePoint(int codePoint) {
@@ -134,10 +104,11 @@ class _DynamicSocialLinksState extends State<DynamicSocialLinks> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const SizedBox(
-        height: 50,
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const SizedBox.shrink();
+    }
+
+    if (_socialLinks.isEmpty) {
+      return const SizedBox.shrink();
     }
 
     return Row(

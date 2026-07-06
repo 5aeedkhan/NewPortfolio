@@ -36,12 +36,6 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
         setState(() {
           _summary = aboutData['summary'] ?? '';
         });
-      } else {
-        // Use default summary
-        setState(() {
-          _summary =
-              'I am a passionate and detail-oriented Computer Science graduate with hands-on experience building cross-platform mobile apps using Flutter and Dart. I have worked through the full app development cycle — from gathering requirements and designing clean, user-friendly interfaces to integrating APIs and deploying functional, high-performing apps. I am well-versed in using Firebase, REST APIs, and various third-party tools to create solid mobile solutions. Currently, I am working as a Flutter Developer at IT Artificer, while also teaching as a Lecturer at KPIMS. This mix of development and teaching lets me apply my technical skills while helping others grow, which I genuinely enjoy.';
-        });
       }
 
       // Load CV data
@@ -50,12 +44,6 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
         setState(() {
           _cvUrl = cvData['cvUrl'] ?? '';
           _cvTitle = cvData['cvTitle'] ?? 'View Full CV';
-        });
-      } else {
-        // Use default CV URL
-        setState(() {
-          _cvUrl =
-              'https://drive.google.com/file/d/19CYzti5pEICeUtLLjVyIawMiZra8Q3vT/view?usp=sharing';
         });
       }
 
@@ -121,20 +109,23 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
           SizedBox(height: isMobile ? 32 : 48),
 
           // Professional Summary Card
-          ScrollReveal(
-            scrollController: widget.scrollController,
-            delay: 150.ms,
-            child: _buildSummaryCard(isMobile, isTablet),
-          ),
+          if (_summary.isNotEmpty)
+            ScrollReveal(
+              scrollController: widget.scrollController,
+              delay: 150.ms,
+              child: _buildSummaryCard(isMobile, isTablet),
+            ),
 
-          SizedBox(height: 32),
+          if (_summary.isNotEmpty)
+            SizedBox(height: 32),
 
           // View Full CV Button
-          ScrollReveal(
-            scrollController: widget.scrollController,
-            delay: 300.ms,
-            child: Center(child: _buildCvButton()),
-          ),
+          if (_cvUrl.isNotEmpty)
+            ScrollReveal(
+              scrollController: widget.scrollController,
+              delay: 300.ms,
+              child: Center(child: _buildCvButton()),
+            ),
         ],
       ),
     );

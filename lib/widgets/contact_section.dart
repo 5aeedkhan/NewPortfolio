@@ -19,6 +19,35 @@ class _ContactSectionState extends State<ContactSection> {
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
   bool _isSubmitting = false;
+  List<Map<String, String>> _contactInfo = [];
+  bool _isLoadingContactInfo = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContactInfo();
+  }
+
+  Future<void> _loadContactInfo() async {
+    try {
+      final data = await _portfolioService.getContactInfo();
+      if (data != null && data['items'] != null) {
+        final List<dynamic> items = data['items'];
+        setState(() {
+          _contactInfo = items
+              .map((item) => {
+                    'label': item['label'] ?? '',
+                    'value': item['value'] ?? '',
+                  })
+              .where((item) => item['value']!.isNotEmpty)
+              .toList();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading contact info: $e');
+    }
+    setState(() => _isLoadingContactInfo = false);
+  }
 
   @override
   void dispose() {
@@ -385,17 +414,28 @@ class _ContactSectionState extends State<ContactSection> {
   }
 
   Widget _buildQuickInfo(bool isMobile) {
-    final items = [
-      {'icon': Icons.email, 'label': 'Email', 'value': 'ms4eedkhan@gmail.com'},
-      {'icon': Icons.phone, 'label': 'WhatsApp', 'value': '+92 335 9350658'},
-      {'icon': Icons.location_on, 'label': 'Location', 'value': 'Pakistan'},
-    ];
+    if (_isLoadingContactInfo) {
+      return const SizedBox.shrink();
+    }
+
+    if (_contactInfo.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final icons = <String, IconData>{
+      'Email': Icons.email,
+      'WhatsApp': Icons.phone,
+      'Phone': Icons.phone,
+      'Location': Icons.location_on,
+    };
 
     return Wrap(
       spacing: isMobile ? 12 : 24,
       runSpacing: 12,
       alignment: WrapAlignment.center,
-      children: items.map((item) {
+      children: _contactInfo.map((item) {
+        final label = item['label'] ?? '';
+        final value = item['value'] ?? '';
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
@@ -407,7 +447,7 @@ class _ContactSectionState extends State<ContactSection> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                item['icon'] as IconData,
+                icons[label] ?? Icons.info_outline,
                 color: AppTheme.neonCyan,
                 size: 18,
               ),
@@ -416,14 +456,14 @@ class _ContactSectionState extends State<ContactSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item['label'] as String,
+                    label,
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: AppTheme.textMuted,
                     ),
                   ),
                   Text(
-                    item['value'] as String,
+                    value,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: AppTheme.textPrimary,

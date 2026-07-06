@@ -42,6 +42,30 @@ class PortfolioService {
     }
   }
 
+  // Contact info
+  Future<Map<String, dynamic>?> getContactInfo() async {
+    try {
+      DocumentSnapshot doc =
+          await _firestore.collection(_collection).doc('contactInfo').get();
+      return doc.exists ? doc.data() as Map<String, dynamic> : null;
+    } catch (e) {
+      debugPrint('Error getting contact info: $e');
+      return null;
+    }
+  }
+
+  Future<void> updateContactInfo(Map<String, dynamic> data) async {
+    try {
+      await _firestore
+          .collection(_collection)
+          .doc('contactInfo')
+          .set(data, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Error updating contact info: $e');
+      rethrow;
+    }
+  }
+
   Future<void> updateAboutData(Map<String, dynamic> data) async {
     try {
       await _firestore

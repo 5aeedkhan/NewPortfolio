@@ -5,7 +5,8 @@ import 'package:portfolio/theme/app_theme.dart';
 import 'package:portfolio/widgets/dynamic_social_links.dart';
 
 class Footer extends StatelessWidget {
-  const Footer({super.key});
+  final String name;
+  const Footer({super.key, this.name = ''});
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,7 @@ class Footer extends StatelessWidget {
             shaderCallback: (bounds) =>
                 AppTheme.textGradient.createShader(bounds),
             child: Text(
-              'Saeed Khan',
+              name.isNotEmpty ? name : 'Portfolio',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -64,7 +65,7 @@ class Footer extends StatelessWidget {
 
           // Copyright
           Text(
-            '© $year Saeed Khan. All rights reserved.',
+            '© $year ${name.isNotEmpty ? name : 'Portfolio'}. All rights reserved.',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: AppTheme.textMuted,
