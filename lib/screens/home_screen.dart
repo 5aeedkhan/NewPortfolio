@@ -508,7 +508,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildHeroContent(bool isMobile) {
-    final imageSize = isMobile ? 120.0 : 180.0;
+    final imageSize = isMobile ? 160.0 : 180.0;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40),

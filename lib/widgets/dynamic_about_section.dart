@@ -220,7 +220,7 @@ class _DynamicAboutSectionState extends State<DynamicAboutSection> {
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Text(
                       paragraph.trim(),
-                      textAlign: isMobile ? TextAlign.left : TextAlign.justify,
+                      textAlign: TextAlign.justify,
                       style: GoogleFonts.inter(
                         fontSize: isMobile ? 14 : 16,
                         height: 1.7,
