@@ -72,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _loadProfileData();
     _startTypewriter();
     ProjectService().ensureProjectOrder();
+    _portfolioService.trackVisit();
   }
 
   void _startTypewriter() {
