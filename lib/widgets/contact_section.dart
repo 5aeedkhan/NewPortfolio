@@ -279,6 +279,7 @@ class _ContactSectionState extends State<ContactSection> {
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
+    final isMultiline = maxLines > 1;
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -287,12 +288,23 @@ class _ContactSectionState extends State<ContactSection> {
       style: GoogleFonts.inter(
         color: AppTheme.textPrimary,
         fontSize: 15,
+        height: 1.5,
       ),
+      textAlignVertical: isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: AppTheme.neonCyan, size: 20),
+        prefixIcon: isMultiline
+            ? Padding(
+                padding: const EdgeInsets.only(top: 14),
+                child: Icon(icon, color: AppTheme.neonCyan, size: 20),
+              )
+            : Icon(icon, color: AppTheme.neonCyan, size: 20),
+        prefixIconConstraints: isMultiline
+            ? const BoxConstraints(minWidth: 40, minHeight: 40)
+            : null,
         filled: true,
         fillColor: AppTheme.bgCard,
+        alignLabelWithHint: isMultiline,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: AppTheme.glassBorder),
