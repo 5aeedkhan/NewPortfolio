@@ -455,8 +455,8 @@ class _AdminPanelState extends State<AdminPanel> {
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.8,
-                maxHeight: MediaQuery.of(context).size.height * 0.6,
+                maxWidth: MediaQuery.of(context).size.width * 0.85,
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
               ),
               decoration: BoxDecoration(
                 color: AppTheme.bgCard,
@@ -636,9 +636,55 @@ class _AdminPanelState extends State<AdminPanel> {
                                                 as String;
                                         final visitedAt = visitData['visitedAt'];
                                         String visitedAtText = 'Unknown time';
+                                        String timeAgoText = '';
                                         if (visitedAt is Timestamp) {
+                                          final dt = visitedAt.toDate();
                                           visitedAtText =
-                                              visitedAt.toDate().toString();
+                                              '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+                                          final diff = DateTime.now().difference(dt);
+                                          if (diff.inMinutes < 1) {
+                                            timeAgoText = 'Just now';
+                                          } else if (diff.inMinutes < 60) {
+                                            timeAgoText = '${diff.inMinutes}m ago';
+                                          } else if (diff.inHours < 24) {
+                                            timeAgoText = '${diff.inHours}h ago';
+                                          } else {
+                                            timeAgoText = '${diff.inDays}d ago';
+                                          }
+                                        }
+
+                                        final browser =
+                                            (visitData['browser'] ?? '') as String;
+                                        final os =
+                                            (visitData['os'] ?? '') as String;
+                                        final screenSize =
+                                            (visitData['screenSize'] ?? '') as String;
+                                        final language =
+                                            (visitData['language'] ?? '') as String;
+                                        final referrer =
+                                            (visitData['referrer'] ?? '') as String;
+                                        final isMobileVisit =
+                                            (visitData['isMobile'] ?? false) as bool;
+
+                                        IconData platformIcon = Icons.public;
+                                        Color platformColor = AppTheme.neonCyan;
+                                        if (platform == 'Web') {
+                                          platformIcon = isMobileVisit
+                                              ? Icons.phone_iphone
+                                              : Icons.desktop_windows;
+                                          platformColor = AppTheme.neonCyan;
+                                        } else if (platform == 'Android') {
+                                          platformIcon = Icons.android;
+                                          platformColor = AppTheme.neonGreen;
+                                        } else if (platform == 'iOS') {
+                                          platformIcon = Icons.phone_iphone;
+                                          platformColor = AppTheme.neonPurple;
+                                        } else if (platform == 'Windows') {
+                                          platformIcon = Icons.laptop_windows;
+                                          platformColor = AppTheme.neonBlue;
+                                        } else if (platform == 'macOS') {
+                                          platformIcon = Icons.laptop_mac;
+                                          platformColor = AppTheme.neonPink;
                                         }
 
                                         return Container(
@@ -651,51 +697,121 @@ class _AdminPanelState extends State<AdminPanel> {
                                               color: AppTheme.glassBorder,
                                             ),
                                           ),
-                                          child: Row(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Container(
-                                                width: 36,
-                                                height: 36,
-                                                decoration: BoxDecoration(
-                                                  color: AppTheme.neonCyan
-                                                      .withValues(alpha: 0.15),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const Icon(
-                                                  Icons.public,
-                                                  color: AppTheme.neonCyan,
-                                                  size: 18,
-                                                ),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    width: 36,
+                                                    height: 36,
+                                                    decoration: BoxDecoration(
+                                                      color: platformColor
+                                                          .withValues(alpha: 0.15),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: Icon(
+                                                      platformIcon,
+                                                      color: platformColor,
+                                                      size: 18,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Expanded(
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          platform,
+                                                          style:
+                                                              GoogleFonts.inter(
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: AppTheme
+                                                                .textPrimary,
+                                                          ),
+                                                        ),
+                                                        if (timeAgoText.isNotEmpty)
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        8,
+                                                                    vertical:
+                                                                        2),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: AppTheme
+                                                                  .neonGreen
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.15),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8),
+                                                            ),
+                                                            child: Text(
+                                                              timeAgoText,
+                                                              style: GoogleFonts
+                                                                  .inter(
+                                                                fontSize: 10,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: AppTheme
+                                                                    .neonGreen,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      platform,
-                                                      style:
-                                                          GoogleFonts.inter(
-                                                        fontSize: 13,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color: AppTheme
-                                                            .textPrimary,
-                                                      ),
+                                              const SizedBox(height: 10),
+                                              Wrap(
+                                                spacing: 6,
+                                                runSpacing: 6,
+                                                children: [
+                                                  if (browser.isNotEmpty)
+                                                    _buildInfoChip(
+                                                        Icons.web, browser),
+                                                  if (os.isNotEmpty)
+                                                    _buildInfoChip(
+                                                        Icons.computer, os),
+                                                  if (screenSize.isNotEmpty)
+                                                    _buildInfoChip(
+                                                        Icons.monitor, screenSize),
+                                                  if (language.isNotEmpty)
+                                                    _buildInfoChip(
+                                                        Icons.language, language),
+                                                  if (referrer.isNotEmpty &&
+                                                      referrer != 'Direct')
+                                                    _buildInfoChip(
+                                                        Icons.link, referrer),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.schedule,
+                                                      size: 12,
+                                                      color: AppTheme.textMuted),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    visitedAtText,
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 11,
+                                                      color: AppTheme.textMuted,
                                                     ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      visitedAtText,
-                                                      style:
-                                                          GoogleFonts.inter(
-                                                        fontSize: 12,
-                                                        color: AppTheme
-                                                            .textMuted,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
@@ -716,6 +832,32 @@ class _AdminPanelState extends State<AdminPanel> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.bgCardLight,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppTheme.glassBorder),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: AppTheme.neonCyan),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }

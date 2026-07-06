@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:html' as html if (dart.library.html) 'dart:html' show window;
 
 class PortfolioService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -253,6 +254,7 @@ class PortfolioService {
         'visitedAt': FieldValue.serverTimestamp(),
         'platform': _resolvePlatformLabel(),
         'isWeb': kIsWeb,
+        if (kIsWeb) ..._collectWebInfo(),
       });
 
       await batch.commit();
@@ -347,6 +349,61 @@ class PortfolioService {
         return 'Linux';
       case TargetPlatform.fuchsia:
         return 'Fuchsia';
+    }
+  }
+
+  Map<String, dynamic> _collectWebInfo() {
+    try {
+      final ua = html.window.navigator.userAgent;
+      String browser = 'Unknown';
+      if (ua.contains('Edg/')) {
+        browser = 'Edge';
+      } else if (ua.contains('OPR/') || ua.contains('Opera/')) {
+        browser = 'Opera';
+      } else if (ua.contains('Chrome/')) {
+        browser = 'Chrome';
+      } else if (ua.contains('Firefox/')) {
+        browser = 'Firefox';
+      } else if (ua.contains('Safari/')) {
+        browser = 'Safari';
+      }
+
+      String os = 'Unknown';
+      if (ua.contains('Windows')) {
+        os = 'Windows';
+      } else if (ua.contains('Mac OS')) {
+        os = 'macOS';
+      } else if (ua.contains('Linux')) {
+        os = 'Linux';
+      } else if (ua.contains('Android')) {
+        os = 'Android';
+      } else if (ua.contains('iPhone') || ua.contains('iPad')) {
+        os = 'iOS';
+      }
+
+      final screenWidth = html.window.screen?.width ?? 0;
+      final screenHeight = html.window.screen?.height ?? 0;
+      final isMobile = screenWidth > 0 && screenWidth < 768;
+
+      String referrer = '';
+      try {
+        referrer = html.window.location.href;
+      } catch (_) {}
+      if (referrer.isEmpty) referrer = 'Direct';
+
+      return {
+        'browser': browser,
+        'os': os,
+        'userAgent': ua,
+        'screenSize': '${screenWidth}x$screenHeight',
+        'isMobile': isMobile,
+        'language': html.window.navigator.language ?? 'Unknown',
+        'referrer': referrer,
+        'timezone': DateTime.now().timeZoneName ?? 'Unknown',
+      };
+    } catch (e) {
+      debugPrint('Error collecting web info: $e');
+      return {};
     }
   }
 }
