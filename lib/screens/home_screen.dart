@@ -383,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
               // Scroll-down indicator
               Positioned(
-                bottom: 30,
+                bottom: 8,
                 left: 0,
                 right: 0,
                 child: _buildScrollIndicator(),
@@ -512,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final imageSize = isMobile ? 160.0 : 180.0;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40, vertical: isMobile ? 40 : 20),
       child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
