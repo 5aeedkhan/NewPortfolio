@@ -35,9 +35,9 @@ class _ContactSectionState extends State<ContactSection> {
         final List<dynamic> items = data['items'];
         setState(() {
           _contactInfo = items
-              .map((item) => {
-                    'label': item['label'] ?? '',
-                    'value': item['value'] ?? '',
+              .map((item) => <String, String>{
+                    'label': (item['label'] ?? '').toString(),
+                    'value': (item['value'] ?? '').toString(),
                   })
               .where((item) => item['value']!.isNotEmpty)
               .toList();
